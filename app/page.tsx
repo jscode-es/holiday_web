@@ -79,6 +79,12 @@ export default async function Home() {
                     <p className="text-sm font-medium text-neutral-900">{a.name}</p>
                     <p className="text-xs text-neutral-400">
                       {a.checkIn} → {a.checkOut}
+                      {a.cost != null && (
+                        <>
+                          {" · "}
+                          {a.cost} {a.currency}
+                        </>
+                      )}
                     </p>
                   </div>
                   <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold", statusStyle[a.status])}>

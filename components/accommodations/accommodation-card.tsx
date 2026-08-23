@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AccommodationForm } from "./accommodation-form";
 import { deleteAccommodation } from "@/lib/actions/accommodations";
+import { googleMapsUrl } from "@/lib/google-maps";
 import type { Accommodation } from "@/lib/queries/accommodations";
 
 const statusStyle: Record<string, string> = {
@@ -32,6 +33,7 @@ export function AccommodationCard({ accommodation, index = 0 }: { accommodation:
   const [view, setView] = useState(false);
   const [editing, setEditing] = useState(false);
   const gradient = cardGradients[index % cardGradients.length];
+  const mapsUrl = googleMapsUrl(accommodation);
 
   async function handleDelete() {
     if (!window.confirm(`¿Borrar "${accommodation.name}"?`)) return;
@@ -90,6 +92,17 @@ export function AccommodationCard({ accommodation, index = 0 }: { accommodation:
             {accommodation.address && <DetailRow label="Dirección" value={accommodation.address} />}
             {accommodation.notes && <DetailRow label="Notas" value={accommodation.notes} />}
           </div>
+          {mapsUrl && (
+            <Button
+              variant="outline"
+              className="rounded-full"
+              nativeButton={false}
+              render={<a href={mapsUrl} target="_blank" rel="noopener noreferrer" />}
+            >
+              <MapPin className="size-4" />
+              Ver en Google Maps
+            </Button>
+          )}
         </DialogContent>
       </Dialog>
 
