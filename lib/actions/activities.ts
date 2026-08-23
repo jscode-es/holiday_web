@@ -25,6 +25,7 @@ export type ActivityInput = {
   viaLat: number | null;
   viaLng: number | null;
   imageUrl: string | null;
+  videoUrl: string | null;
 };
 
 function revalidateActivityPaths() {

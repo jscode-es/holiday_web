@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/shared/image-uploader";
+import { youtubeVideoId } from "@/lib/youtube";
 import type { Activity } from "@/lib/queries/days";
 import { createActivity, updateActivity, type ActivityInput } from "@/lib/actions/activities";
 
@@ -31,7 +32,10 @@ export function ActivityForm({
   const [type, setType] = useState<ActivityInput["type"]>(activity?.type ?? "place");
   const [status, setStatus] = useState<ActivityInput["status"]>(activity?.status ?? null);
   const [imageUrl, setImageUrl] = useState(activity?.imageUrl ?? "");
+  const [videoUrl, setVideoUrl] = useState(activity?.videoUrl ?? "");
   const [saving, setSaving] = useState(false);
+
+  const videoUrlInvalid = videoUrl.trim() !== "" && !youtubeVideoId(videoUrl.trim());
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,6 +55,7 @@ export function ActivityForm({
       origin: (formData.get("origin") as string) || null,
       destination: (formData.get("destination") as string) || null,
       imageUrl: imageUrl.trim() || null,
+      videoUrl: !videoUrlInvalid && videoUrl.trim() ? videoUrl.trim() : null,
     };
 
     if (activity) {
@@ -110,6 +115,22 @@ export function ActivityForm({
       <div className="space-y-2">
         <Label>Imagen de referencia</Label>
         <ImageUploader value={imageUrl} onChange={setImageUrl} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="videoUrl">Vídeo de YouTube (URL)</Label>
+        <Input
+          id="videoUrl"
+          name="videoUrl"
+          type="url"
+          placeholder="https://www.youtube.com/watch?v=…"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
+          aria-invalid={videoUrlInvalid}
+        />
+        {videoUrlInvalid && (
+          <p className="text-xs text-rose-600">No parece un enlace de YouTube válido.</p>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4">

@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig } from "@/lib/activity-type";
+import { youtubeEmbedUrl } from "@/lib/youtube";
 import type { Activity } from "@/lib/queries/days";
 
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -24,6 +25,7 @@ export function ActivityDetailDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const config = typeConfig[activity.type];
+  const embedUrl = activity.videoUrl ? youtubeEmbedUrl(activity.videoUrl) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -40,6 +42,17 @@ export function ActivityDetailDialog({
           <DialogTitle>{activity.title}</DialogTitle>
           {activity.description && <DialogDescription>{activity.description}</DialogDescription>}
         </DialogHeader>
+        {embedUrl && (
+          <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
+            <iframe
+              src={embedUrl}
+              title="Vídeo de referencia"
+              className="absolute inset-0 h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        )}
         <div>
           {activity.time && <DetailRow label="Hora" value={activity.time} />}
           <DetailRow label="Tipo" value={config.label} />

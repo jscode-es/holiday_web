@@ -34,6 +34,7 @@ export const activities = sqliteTable("activities", {
   viaLat: real("via_lat"),
   viaLng: real("via_lng"),
   imageUrl: text("image_url"),
+  videoUrl: text("video_url"),
 });
 
 export const accommodations = sqliteTable("accommodations", {
