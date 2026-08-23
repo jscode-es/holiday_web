@@ -31,19 +31,7 @@ export function ActivityDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <div className="relative -mx-4 -mt-4 aspect-video overflow-hidden rounded-t-xl bg-neutral-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={activityImageUrl(activity, 640, 360)}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        </div>
-        <DialogHeader>
-          <DialogTitle>{activity.title}</DialogTitle>
-          {activity.description && <DialogDescription>{activity.description}</DialogDescription>}
-        </DialogHeader>
-        {embedUrl && (
-          <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
+          {embedUrl ? (
             <iframe
               src={embedUrl}
               title="Vídeo de referencia"
@@ -51,8 +39,19 @@ export function ActivityDetailDialog({
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
-          </div>
-        )}
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={activityImageUrl(activity, 640, 360)}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>{activity.title}</DialogTitle>
+          {activity.description && <DialogDescription>{activity.description}</DialogDescription>}
+        </DialogHeader>
         <div>
           {activity.time && <DetailRow label="Hora" value={activity.time} />}
           <DetailRow label="Tipo" value={config.label} />
