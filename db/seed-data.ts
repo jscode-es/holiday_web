@@ -37,6 +37,9 @@ export type ActivitySeed = {
   originLng: number | null;
   destLat: number | null;
   destLng: number | null;
+  viaLabel?: string | null;
+  viaLat?: number | null;
+  viaLng?: number | null;
 };
 
 const BLANK: Pick<
@@ -74,6 +77,9 @@ export const activitySeeds: ActivitySeed[] = [
     originLng: 2.0785,
     destLat: 33.5859,
     destLng: 130.4506,
+    viaLabel: 'Escala en Hong Kong',
+    viaLat: 22.308,
+    viaLng: 113.9185,
   },
 
   // Día 2
@@ -1870,6 +1876,9 @@ export const activitySeeds: ActivitySeed[] = [
     originLng: 139.7798,
     destLat: 41.2971,
     destLng: 2.0785,
+    viaLabel: 'Escala en Hong Kong',
+    viaLat: 22.308,
+    viaLng: 113.9185,
   },
 ];
 
