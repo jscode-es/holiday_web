@@ -23,7 +23,7 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
   const [name, setName] = useState(bag.name);
   const [newItem, setNewItem] = useState("");
   const [confirmingDeleteBag, setConfirmingDeleteBag] = useState(false);
-  const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
+  const [deletingItem, setDeletingItem] = useState<{ id: number; label: string } | null>(null);
 
   const packedCount = bag.items.filter((i) => i.packed).length;
   const total = bag.items.length;
@@ -133,7 +133,7 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
                 {item.label}
               </span>
               <button
-                onClick={() => setDeletingItemId(item.id)}
+                onClick={() => setDeletingItem({ id: item.id, label: item.label })}
                 className="opacity-0 transition-opacity group-hover:opacity-100"
                 aria-label="Borrar elemento"
               >
@@ -145,12 +145,12 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
       </div>
 
       <ConfirmDialog
-        open={deletingItemId != null}
-        onOpenChange={(open) => !open && setDeletingItemId(null)}
-        title="¿Borrar este elemento?"
+        open={deletingItem != null}
+        onOpenChange={(open) => !open && setDeletingItem(null)}
+        title={`¿Borrar "${deletingItem?.label ?? ""}"?`}
         onConfirm={async () => {
-          if (deletingItemId == null) return;
-          await deleteBagItem(deletingItemId);
+          if (deletingItem == null) return;
+          await deleteBagItem(deletingItem.id);
           router.refresh();
         }}
       />
