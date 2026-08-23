@@ -28,9 +28,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex h-screen overflow-hidden bg-neutral-50 antialiased">
+      <body className="flex h-screen flex-col overflow-hidden bg-neutral-50 antialiased md:flex-row">
         <Sidebar weather={weather} />
-        <main className="h-screen min-w-0 flex-1 overflow-y-auto">{children}</main>
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">{children}</main>
       </body>
     </html>
   );

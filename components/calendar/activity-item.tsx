@@ -33,7 +33,7 @@ export function ActivityItem({ activity, onEdit }: { activity: Activity; onEdit:
           className="size-12 shrink-0 rounded-lg object-cover"
         />
         <div className="min-w-0 space-y-1.5">
-          <div className="flex items-center gap-1.5 text-sm">
+          <div className="flex flex-wrap items-center gap-1.5 text-sm">
             {activity.time && <span className="font-mono text-xs text-neutral-400">{activity.time}</span>}
             <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", config.bg, config.fg)}>
               {config.label}

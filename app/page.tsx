@@ -25,7 +25,7 @@ export default async function Home() {
     : 0;
 
   return (
-    <div className="space-y-8 px-8 py-8">
+    <div className="space-y-8 px-4 py-6 sm:px-6 md:px-8 md:py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-neutral-900">
