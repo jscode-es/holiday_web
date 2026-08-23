@@ -1,0 +1,36 @@
+import { getAllBagsWithItems } from "@/lib/queries/bags";
+import { BagCard } from "@/components/bags/bag-card";
+import { AddBagButton } from "@/components/bags/add-bag-button";
+
+export default async function MaletasPage() {
+  const bags = await getAllBagsWithItems();
+  const totalItems = bags.reduce((acc, b) => acc + b.items.length, 0);
+  const packedItems = bags.reduce((acc, b) => acc + b.items.filter((i) => i.packed).length, 0);
+
+  return (
+    <div className="space-y-6 px-8 py-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Maletas</h1>
+          <p className="text-sm text-neutral-400">
+            {bags.length} {bags.length === 1 ? "maleta" : "maletas"}
+            {totalItems > 0 && ` · ${packedItems}/${totalItems} preparado`}
+          </p>
+        </div>
+        <AddBagButton />
+      </div>
+
+      {bags.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-neutral-200 py-16 text-center text-sm text-neutral-400">
+          Todavía no has añadido ninguna maleta. Crea la primera con &quot;Nueva maleta&quot;.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {bags.map((bag) => (
+            <BagCard key={bag.id} bag={bag} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

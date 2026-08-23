@@ -54,3 +54,17 @@ export const checklistItems = sqliteTable("checklist_items", {
   label: text("label").notNull(),
   done: integer("done", { mode: "boolean" }).notNull().default(false),
 });
+
+export const bags = sqliteTable("bags", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+});
+
+export const bagItems = sqliteTable("bag_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  bagId: integer("bag_id")
+    .notNull()
+    .references(() => bags.id, { onDelete: "cascade" }),
+  label: text("label").notNull(),
+  packed: integer("packed", { mode: "boolean" }).notNull().default(false),
+});

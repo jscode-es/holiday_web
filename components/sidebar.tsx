@@ -9,6 +9,7 @@ import {
   Map,
   Bed,
   Wallet,
+  Luggage,
   Sun,
   Cloud,
   CloudSun,
@@ -27,6 +28,7 @@ const links = [
   { href: "/itinerario", label: "Itinerario", icon: ListChecks },
   { href: "/mapa", label: "Mapa", icon: Map },
   { href: "/alojamientos", label: "Alojamientos", icon: Bed },
+  { href: "/maletas", label: "Maletas", icon: Luggage },
   { href: "/presupuesto", label: "Presupuesto", icon: Wallet },
 ];
 
