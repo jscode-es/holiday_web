@@ -1,5 +1,26 @@
-import { Plane, TrainFront, MapPin, Ticket, UtensilsCrossed, StickyNote, AlertTriangle, Bed, type LucideIcon } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Plane,
+  TrainFront,
+  MapPin,
+  Ticket,
+  UtensilsCrossed,
+  StickyNote,
+  AlertTriangle,
+  Bed,
+  Eye,
+  Pencil,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ActivityForm } from "@/components/calendar/activity-form";
+import { deleteActivity } from "@/lib/actions/activities";
 import type { Activity } from "@/lib/queries/days";
 
 const typeConfig: Record<Activity["type"], { label: string; icon: LucideIcon; bg: string; fg: string }> = {
@@ -18,13 +39,32 @@ const statusStyle: Record<string, string> = {
   programado: "bg-neutral-100 text-neutral-600",
 };
 
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-4 border-b border-neutral-100 py-2 text-sm last:border-0">
+      <span className="text-neutral-400">{label}</span>
+      <span className="font-medium text-neutral-900">{value}</span>
+    </div>
+  );
+}
+
 export function ActivityCard({ activity }: { activity: Activity }) {
+  const router = useRouter();
+  const [view, setView] = useState(false);
+  const [editing, setEditing] = useState(false);
+
   const isLongHaul = activity.type === "transport" && (activity.durationMin ?? 0) >= 360;
   const config = typeConfig[activity.type];
   const Icon = isLongHaul ? Plane : config.icon;
 
+  async function handleDelete() {
+    if (!window.confirm(`¿Borrar "${activity.title}"?`)) return;
+    await deleteActivity(activity.id);
+    router.refresh();
+  }
+
   return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-neutral-100 bg-white p-4">
+    <div className="group flex h-full flex-col gap-3 rounded-2xl border border-neutral-100 bg-white p-4">
       <div className="flex items-start justify-between">
         <span className={cn("flex size-9 items-center justify-center rounded-xl", config.bg, config.fg)}>
           <Icon className="size-4.5" />
@@ -44,19 +84,65 @@ export function ActivityCard({ activity }: { activity: Activity }) {
           )}
         </div>
         <p className="text-sm font-semibold text-neutral-900">{activity.title}</p>
-        {activity.description && <p className="text-sm text-neutral-500">{activity.description}</p>}
+        {activity.description && <p className="line-clamp-3 text-sm text-neutral-500">{activity.description}</p>}
       </div>
 
-      {(activity.cost != null || activity.durationMin != null) && (
-        <div className="mt-auto flex items-center gap-3 pt-1 text-xs font-medium text-neutral-400">
-          {activity.cost != null && (
-            <span>
-              {activity.cost} {activity.currency}
-            </span>
-          )}
-          {activity.durationMin != null && <span>{activity.durationMin} min</span>}
+      <div className="mt-auto flex items-center justify-between pt-1">
+        {activity.cost != null ? (
+          <span className="text-xs font-medium text-neutral-400">
+            {activity.cost} {activity.currency}
+          </span>
+        ) : (
+          <span />
+        )}
+        <div className="flex opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+          <Button size="icon-xs" variant="ghost" onClick={() => setView(true)} aria-label="Ver más">
+            <Eye className="size-3.5" />
+          </Button>
+          <Button size="icon-xs" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
+            <Pencil className="size-3.5" />
+          </Button>
+          <Button size="icon-xs" variant="ghost" onClick={handleDelete} aria-label="Borrar">
+            <Trash2 className="size-3.5" />
+          </Button>
         </div>
-      )}
+      </div>
+
+      <Dialog open={view} onOpenChange={setView}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{activity.title}</DialogTitle>
+            {activity.description && <DialogDescription>{activity.description}</DialogDescription>}
+          </DialogHeader>
+          <div>
+            {activity.time && <DetailRow label="Hora" value={activity.time} />}
+            <DetailRow label="Tipo" value={config.label} />
+            {activity.status && <DetailRow label="Estado" value={activity.status} />}
+            {activity.origin && <DetailRow label="Origen" value={activity.origin} />}
+            {activity.destination && <DetailRow label="Destino" value={activity.destination} />}
+            {activity.durationMin != null && <DetailRow label="Duración" value={`${activity.durationMin} min`} />}
+            {activity.cost != null && (
+              <DetailRow label="Coste" value={`${activity.cost} ${activity.currency ?? ""}`} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar actividad</DialogTitle>
+          </DialogHeader>
+          <ActivityForm
+            dayId={activity.dayId}
+            activity={activity}
+            onDone={() => {
+              setEditing(false);
+              router.refresh();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
