@@ -1,4 +1,5 @@
 import { BackupPanel } from "@/components/settings/backup-panel";
+import { LogoutButton } from "@/components/settings/logout-button";
 
 export default function AjustesPage() {
   return (
@@ -8,6 +9,11 @@ export default function AjustesPage() {
         <p className="text-sm text-neutral-400">Copia de seguridad de todos los datos del viaje</p>
       </div>
       <BackupPanel />
+
+      <div className="rounded-2xl border border-neutral-100 bg-white p-5">
+        <p className="mb-3 text-sm font-semibold text-neutral-900">Cuenta</p>
+        <LogoutButton />
+      </div>
     </div>
   );
 }
