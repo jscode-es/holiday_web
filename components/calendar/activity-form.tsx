@@ -29,6 +29,7 @@ export function ActivityForm({
 }) {
   const [type, setType] = useState<ActivityInput["type"]>(activity?.type ?? "place");
   const [status, setStatus] = useState<ActivityInput["status"]>(activity?.status ?? null);
+  const [imageUrl, setImageUrl] = useState(activity?.imageUrl ?? "");
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -52,6 +53,7 @@ export function ActivityForm({
       originLng: null,
       destLat: null,
       destLng: null,
+      imageUrl: imageUrl.trim() || null,
     };
 
     if (activity) {
@@ -95,6 +97,35 @@ export function ActivityForm({
       <div className="space-y-2">
         <Label htmlFor="description">Descripción</Label>
         <Textarea id="description" name="description" defaultValue={activity?.description ?? ""} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="imageUrl">Imagen de referencia (URL)</Label>
+        <Input
+          id="imageUrl"
+          name="imageUrl"
+          type="url"
+          placeholder="https://…"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        <p className="text-xs text-neutral-400">
+          Pega el enlace a una imagen que ya exista en internet. No se admite subir archivos desde el disco.
+        </p>
+        {imageUrl.trim() && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt=""
+            className="h-24 w-full rounded-lg object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+            onLoad={(e) => {
+              e.currentTarget.style.display = "block";
+            }}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4">

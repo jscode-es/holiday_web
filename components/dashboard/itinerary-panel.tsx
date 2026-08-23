@@ -17,21 +17,21 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
   if (!day) return null;
 
   return (
-    <div className="rounded-2xl border border-neutral-100 bg-white p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex size-8 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
-            {day.dayNumber}
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-neutral-900">{day.title}</p>
-            <p className="text-xs text-neutral-400">{day.date}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
+    <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-white">
+      <div className="relative h-36 w-full bg-neutral-200">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`https://picsum.photos/seed/day-${day.id}/800/300`}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
+
+        <div className="absolute top-3 right-3 flex items-center gap-1">
           <Button
             size="icon-sm"
-            variant="ghost"
+            variant="secondary"
+            className="bg-white/80 hover:bg-white"
             disabled={index === 0}
             onClick={() => {
               setEditing(null);
@@ -42,7 +42,8 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
           </Button>
           <Button
             size="icon-sm"
-            variant="ghost"
+            variant="secondary"
+            className="bg-white/80 hover:bg-white"
             disabled={index === days.length - 1}
             onClick={() => {
               setEditing(null);
@@ -52,34 +53,46 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
             <ChevronRight className="size-4" />
           </Button>
         </div>
+
+        <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-4">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-neutral-900">
+            {day.dayNumber}
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-white">{day.title}</p>
+            <p className="text-xs text-white/70">{day.date}</p>
+          </div>
+        </div>
       </div>
 
-      {editing ? (
-        <ActivityForm
-          dayId={day.id}
-          activity={editing === "new" ? undefined : editing}
-          onDone={() => {
-            setEditing(null);
-            router.refresh();
-          }}
-        />
-      ) : (
-        <>
-          <Button size="sm" className="mb-2 rounded-full" onClick={() => setEditing("new")}>
-            <Plus className="size-4" />
-            Añadir actividad
-          </Button>
-          <div className="max-h-[380px] overflow-y-auto">
-            {day.activities.length === 0 ? (
-              <p className="py-6 text-center text-sm text-neutral-400">Sin actividades este día todavía.</p>
-            ) : (
-              day.activities.map((activity) => (
-                <ActivityItem key={activity.id} activity={activity} onEdit={setEditing} />
-              ))
-            )}
-          </div>
-        </>
-      )}
+      <div className="p-5">
+        {editing ? (
+          <ActivityForm
+            dayId={day.id}
+            activity={editing === "new" ? undefined : editing}
+            onDone={() => {
+              setEditing(null);
+              router.refresh();
+            }}
+          />
+        ) : (
+          <>
+            <Button size="sm" className="mb-2 rounded-full" onClick={() => setEditing("new")}>
+              <Plus className="size-4" />
+              Añadir actividad
+            </Button>
+            <div className="max-h-85 overflow-y-auto">
+              {day.activities.length === 0 ? (
+                <p className="py-6 text-center text-sm text-neutral-400">Sin actividades este día todavía.</p>
+              ) : (
+                day.activities.map((activity) => (
+                  <ActivityItem key={activity.id} activity={activity} onEdit={setEditing} />
+                ))
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

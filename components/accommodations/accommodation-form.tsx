@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,8 +21,13 @@ import {
 
 const STATUSES: AccommodationInput["status"][] = ["programado", "confirmado", "pendiente"];
 
-export function AccommodationForm({ accommodation }: { accommodation?: Accommodation }) {
-  const router = useRouter();
+export function AccommodationForm({
+  accommodation,
+  onDone,
+}: {
+  accommodation?: Accommodation;
+  onDone: () => void;
+}) {
   const [status, setStatus] = useState<AccommodationInput["status"]>(accommodation?.status ?? "pendiente");
   const [saving, setSaving] = useState(false);
 
@@ -52,8 +56,7 @@ export function AccommodationForm({ accommodation }: { accommodation?: Accommoda
       await createAccommodation(input);
     }
     setSaving(false);
-    router.push("/alojamientos");
-    router.refresh();
+    onDone();
   }
 
   return (

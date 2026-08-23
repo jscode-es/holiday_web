@@ -64,7 +64,16 @@ export function ActivityCard({ activity }: { activity: Activity }) {
   }
 
   return (
-    <div className="group flex h-full flex-col gap-3 rounded-2xl border border-neutral-100 bg-white p-4">
+    <div className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-4">
+      {activity.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={activity.imageUrl}
+          alt=""
+          loading="lazy"
+          className="-mx-4 -mt-4 h-28 w-[calc(100%+2rem)] object-cover"
+        />
+      )}
       <div className="flex items-start justify-between">
         <span className={cn("flex size-9 items-center justify-center rounded-xl", config.bg, config.fg)}>
           <Icon className="size-4.5" />
@@ -110,6 +119,10 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
       <Dialog open={view} onOpenChange={setView}>
         <DialogContent className="sm:max-w-md">
+          {activity.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={activity.imageUrl} alt="" className="-mx-4 -mt-4 h-40 w-[calc(100%+2rem)] rounded-t-xl object-cover" />
+          )}
           <DialogHeader>
             <DialogTitle>{activity.title}</DialogTitle>
             {activity.description && <DialogDescription>{activity.description}</DialogDescription>}

@@ -2,19 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ActivityForm } from "@/components/calendar/activity-form";
 import { ActivityCard } from "./activity-card";
+import { DayForm } from "./day-form";
 import type { DayWithActivities } from "@/lib/queries/days";
 
 export function DayTabs({ days }: { days: DayWithActivities[] }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [adding, setAdding] = useState(false);
+  const [editingDay, setEditingDay] = useState(false);
   const day = days[index];
 
   return (
@@ -64,7 +66,12 @@ export function DayTabs({ days }: { days: DayWithActivities[] }) {
         <div className="space-y-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold text-neutral-900">{day.title}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-neutral-900">{day.title}</h2>
+                <Button size="icon-xs" variant="ghost" onClick={() => setEditingDay(true)} aria-label="Editar día">
+                  <Pencil className="size-3.5" />
+                </Button>
+              </div>
               <p className="text-sm text-neutral-400">
                 {day.date} · {day.activities.length} {day.activities.length === 1 ? "actividad" : "actividades"}
               </p>
@@ -99,6 +106,21 @@ export function DayTabs({ days }: { days: DayWithActivities[] }) {
                 dayId={day.id}
                 onDone={() => {
                   setAdding(false);
+                  router.refresh();
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={editingDay} onOpenChange={setEditingDay}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Editar día {day.dayNumber}</DialogTitle>
+              </DialogHeader>
+              <DayForm
+                day={day}
+                onDone={() => {
+                  setEditingDay(false);
                   router.refresh();
                 }}
               />

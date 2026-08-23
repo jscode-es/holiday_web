@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getAllAccommodations } from "@/lib/queries/accommodations";
 import { AccommodationCard } from "@/components/accommodations/accommodation-card";
-import { Button } from "@/components/ui/button";
+import { AddAccommodationButton } from "@/components/accommodations/add-accommodation-button";
 import { cn } from "@/lib/utils";
 
 const statuses = ["confirmado", "programado", "pendiente"];
@@ -22,9 +22,7 @@ export default async function AlojamientosPage({
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Alojamientos</h1>
           <p className="text-sm text-neutral-400">{accommodations.length} reservas para el viaje</p>
         </div>
-        <Button size="sm" className="rounded-full" nativeButton={false} render={<Link href="/alojamientos/new" />}>
-          Añadir alojamiento
-        </Button>
+        <AddAccommodationButton />
       </div>
 
       <div className="flex gap-2">

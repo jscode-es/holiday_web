@@ -21,6 +21,7 @@ export type ActivityInput = {
   originLng: number | null;
   destLat: number | null;
   destLng: number | null;
+  imageUrl: string | null;
 };
 
 function revalidateActivityPaths() {
