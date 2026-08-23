@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarDays, ListChecks, Map, Bed, Luggage, Wallet, Settings } from "lucide-react";
+import { LayoutDashboard, CalendarDays, ListChecks, Map, Luggage, Wallet, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WeatherCard } from "@/components/weather-dialog";
 import type { WeatherInfo } from "@/lib/weather";
@@ -12,7 +12,6 @@ const links = [
   { href: "/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/itinerario", label: "Itinerario", icon: ListChecks },
   { href: "/mapa", label: "Mapa", icon: Map },
-  { href: "/alojamientos", label: "Alojamientos", icon: Bed },
   { href: "/maletas", label: "Maletas", icon: Luggage },
   { href: "/presupuesto", label: "Presupuesto", icon: Wallet },
 ];

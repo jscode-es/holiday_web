@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getAllDaysWithActivities } from "@/lib/queries/days";
 import { getAllAccommodations } from "@/lib/queries/accommodations";
 import { getBudgetSummary } from "@/lib/queries/budget";
@@ -7,13 +6,6 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { ItineraryPanel } from "@/components/dashboard/itinerary-panel";
 import { Gallery } from "@/components/dashboard/gallery";
 import { MapLoader } from "@/components/map/map-loader";
-import { cn } from "@/lib/utils";
-
-const statusStyle: Record<string, string> = {
-  pendiente: "bg-rose-100 text-rose-700",
-  confirmado: "bg-emerald-100 text-emerald-700",
-  programado: "bg-neutral-100 text-neutral-600",
-};
 
 export default async function Home() {
   const [days, accommodations, summary, markers, routes] = await Promise.all([
@@ -60,40 +52,8 @@ export default async function Home() {
           <ItineraryPanel days={days} />
         </div>
 
-        <div className="space-y-6">
-          <div className="overflow-hidden rounded-2xl border border-neutral-100">
-            <MapLoader markers={markers} routes={routes} height="320px" />
-          </div>
-
-          <div className="rounded-2xl border border-neutral-100 bg-white p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-semibold text-neutral-900">Alojamientos</p>
-              <Link href="/alojamientos" className="text-xs font-medium text-neutral-400 hover:text-neutral-900">
-                Ver todos
-              </Link>
-            </div>
-            <div className="space-y-2">
-              {accommodations.map((a) => (
-                <div key={a.id} className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">{a.name}</p>
-                    <p className="text-xs text-neutral-400">
-                      {a.checkIn} → {a.checkOut}
-                      {a.cost != null && (
-                        <>
-                          {" · "}
-                          {a.cost} {a.currency}
-                        </>
-                      )}
-                    </p>
-                  </div>
-                  <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold", statusStyle[a.status])}>
-                    {a.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="overflow-hidden rounded-2xl border border-neutral-100">
+          <MapLoader markers={markers} routes={routes} height="320px" />
         </div>
       </div>
 
