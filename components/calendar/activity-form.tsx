@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUploader } from "@/components/shared/image-uploader";
 import type { Activity } from "@/lib/queries/days";
 import { createActivity, updateActivity, type ActivityInput } from "@/lib/actions/activities";
 
@@ -100,32 +101,8 @@ export function ActivityForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="imageUrl">Imagen de referencia (URL)</Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          type="url"
-          placeholder="https://…"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-        />
-        <p className="text-xs text-neutral-400">
-          Pega el enlace a una imagen que ya exista en internet. No se admite subir archivos desde el disco.
-        </p>
-        {imageUrl.trim() && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt=""
-            className="h-24 w-full rounded-lg object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-            onLoad={(e) => {
-              e.currentTarget.style.display = "block";
-            }}
-          />
-        )}
+        <Label>Imagen de referencia</Label>
+        <ImageUploader value={imageUrl} onChange={setImageUrl} />
       </div>
 
       <div className="grid grid-cols-3 gap-4">

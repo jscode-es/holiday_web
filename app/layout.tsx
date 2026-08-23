@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
+import { getWeather } from "@/lib/weather";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
@@ -19,14 +20,16 @@ export const metadata: Metadata = {
   description: "Itinerario del viaje a Japón, 27 sep - 16 oct 2026",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const weather = await getWeather();
+
   return (
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex h-screen overflow-hidden bg-neutral-50 antialiased">
-        <Sidebar />
+        <Sidebar weather={weather} />
         <main className="h-screen min-w-0 flex-1 overflow-y-auto">{children}</main>
       </body>
     </html>
