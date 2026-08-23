@@ -21,6 +21,7 @@ export type AccommodationInput = {
 
 function revalidateAccommodationPaths() {
   revalidatePath("/alojamientos");
+  revalidatePath("/");
   revalidatePath("/mapa");
   revalidatePath("/presupuesto");
 }

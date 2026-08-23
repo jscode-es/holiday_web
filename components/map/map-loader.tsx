@@ -8,6 +8,14 @@ const RouteMap = dynamic(() => import("./route-map").then((m) => m.RouteMap), {
   loading: () => <p className="p-6 text-muted-foreground">Cargando mapa…</p>,
 });
 
-export function MapLoader({ markers, routes }: { markers: MapMarker[]; routes: MapRoute[] }) {
-  return <RouteMap markers={markers} routes={routes} />;
+export function MapLoader({
+  markers,
+  routes,
+  height,
+}: {
+  markers: MapMarker[];
+  routes: MapRoute[];
+  height?: string;
+}) {
+  return <RouteMap markers={markers} routes={routes} height={height} />;
 }

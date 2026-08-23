@@ -24,6 +24,7 @@ export type ActivityInput = {
 };
 
 function revalidateActivityPaths() {
+  revalidatePath("/");
   revalidatePath("/calendario");
   revalidatePath("/itinerario");
   revalidatePath("/mapa");

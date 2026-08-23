@@ -12,11 +12,19 @@ const icon = L.icon({
   iconAnchor: [12, 41],
 });
 
-export function RouteMap({ markers, routes }: { markers: MapMarker[]; routes: MapRoute[] }) {
+export function RouteMap({
+  markers,
+  routes,
+  height = "70vh",
+}: {
+  markers: MapMarker[];
+  routes: MapRoute[];
+  height?: string;
+}) {
   const center: [number, number] = markers.length ? [markers[0].lat, markers[0].lng] : [35.6812, 139.7671];
 
   return (
-    <MapContainer center={center} zoom={6} style={{ height: "70vh", width: "100%" }}>
+    <MapContainer center={center} zoom={6} style={{ height, width: "100%" }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
