@@ -21,6 +21,9 @@ export type ActivityInput = {
   originLng: number | null;
   destLat: number | null;
   destLng: number | null;
+  viaLabel: string | null;
+  viaLat: number | null;
+  viaLng: number | null;
   imageUrl: string | null;
 };
 

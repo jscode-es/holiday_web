@@ -38,7 +38,7 @@ export function ActivityForm({
     setSaving(true);
     const formData = new FormData(e.currentTarget);
 
-    const input: ActivityInput = {
+    const fields = {
       dayId,
       time: (formData.get("time") as string) || null,
       type,
@@ -50,17 +50,24 @@ export function ActivityForm({
       durationMin: formData.get("durationMin") ? Number(formData.get("durationMin")) : null,
       origin: (formData.get("origin") as string) || null,
       destination: (formData.get("destination") as string) || null,
-      originLat: null,
-      originLng: null,
-      destLat: null,
-      destLng: null,
       imageUrl: imageUrl.trim() || null,
     };
 
     if (activity) {
-      await updateActivity(activity.id, input);
+      // Partial update: map coordinates (origin/dest/via lat-lng) aren't editable in
+      // this form, so they're intentionally omitted here rather than nulled out.
+      await updateActivity(activity.id, fields);
     } else {
-      await createActivity(input);
+      await createActivity({
+        ...fields,
+        originLat: null,
+        originLng: null,
+        destLat: null,
+        destLng: null,
+        viaLabel: null,
+        viaLat: null,
+        viaLng: null,
+      });
     }
     setSaving(false);
     onDone();
