@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarDays, ListChecks, Map, Bed, Luggage, Wallet } from "lucide-react";
+import { LayoutDashboard, CalendarDays, ListChecks, Map, Bed, Luggage, Wallet, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WeatherCard } from "@/components/weather-dialog";
 import type { WeatherInfo } from "@/lib/weather";
@@ -55,9 +55,21 @@ export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
 
       <WeatherCard weather={weather} />
 
-      <div className="border-t border-neutral-100 px-6 py-4">
-        <p className="text-sm font-semibold text-neutral-900">Sergio</p>
-        <p className="text-xs text-neutral-400">2 adultos · 20 días</p>
+      <div className="flex items-center justify-between border-t border-neutral-100 px-6 py-4">
+        <div>
+          <p className="text-sm font-semibold text-neutral-900">Sergio</p>
+          <p className="text-xs text-neutral-400">2 adultos · 20 días</p>
+        </div>
+        <Link
+          href="/ajustes"
+          aria-label="Ajustes"
+          className={cn(
+            "flex size-8 items-center justify-center rounded-lg transition-colors",
+            pathname === "/ajustes" ? "bg-black text-white" : "text-neutral-400 hover:bg-neutral-50 hover:text-neutral-900"
+          )}
+        >
+          <Settings className="size-4" />
+        </Link>
       </div>
     </aside>
   );
