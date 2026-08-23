@@ -9,6 +9,7 @@ export type DayInput = {
   date: string;
   title: string;
   summary: string | null;
+  imageUrl: string | null;
 };
 
 export async function updateDay(id: number, input: Partial<DayInput>) {

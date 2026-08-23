@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploader } from "@/components/shared/image-uploader";
 import { updateDay } from "@/lib/actions/days";
 import type { Day } from "@/lib/queries/days";
 
 export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
   const [saving, setSaving] = useState(false);
+  const [imageUrl, setImageUrl] = useState(day.imageUrl ?? "");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -20,6 +22,7 @@ export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
       date: formData.get("date") as string,
       title: formData.get("title") as string,
       summary: (formData.get("summary") as string) || null,
+      imageUrl: imageUrl.trim() || null,
     });
 
     setSaving(false);
@@ -42,6 +45,11 @@ export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
       <div className="space-y-2">
         <Label htmlFor="summary">Resumen</Label>
         <Textarea id="summary" name="summary" defaultValue={day.summary ?? ""} />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Imagen de cabecera</Label>
+        <ImageUploader value={imageUrl} onChange={setImageUrl} />
       </div>
 
       <Button type="submit" disabled={saving} className="rounded-full">

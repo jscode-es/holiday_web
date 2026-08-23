@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ActivityForm } from "@/components/calendar/activity-form";
 import { deleteActivity } from "@/lib/actions/activities";
+import { activityImageUrl } from "@/lib/activity-image";
 import type { Activity } from "@/lib/queries/days";
 
 const typeConfig: Record<Activity["type"], { label: string; icon: LucideIcon; bg: string; fg: string }> = {
@@ -65,20 +66,23 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
   return (
     <div className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-4">
-      {activity.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={activity.imageUrl}
-          alt=""
-          loading="lazy"
-          className="-mx-4 -mt-4 h-28 w-[calc(100%+2rem)] object-cover"
-        />
-      )}
-      <div className="flex items-start justify-between">
-        <span className={cn("flex size-9 items-center justify-center rounded-xl", config.bg, config.fg)}>
-          <Icon className="size-4.5" />
+      <div className="relative -mx-4 -mt-4 aspect-square w-[calc(100%+2rem)] overflow-hidden bg-neutral-100">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={activityImageUrl(activity)} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <span
+          className={cn(
+            "absolute top-2 left-2 flex size-8 items-center justify-center rounded-lg backdrop-blur",
+            config.bg,
+            config.fg
+          )}
+        >
+          <Icon className="size-4" />
         </span>
-        {activity.time && <span className="font-mono text-xs text-neutral-400">{activity.time}</span>}
+        {activity.time && (
+          <span className="absolute top-2 right-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[11px] text-white">
+            {activity.time}
+          </span>
+        )}
       </div>
 
       <div className="space-y-1">
@@ -119,10 +123,12 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
       <Dialog open={view} onOpenChange={setView}>
         <DialogContent className="sm:max-w-md">
-          {activity.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={activity.imageUrl} alt="" className="-mx-4 -mt-4 h-40 w-[calc(100%+2rem)] rounded-t-xl object-cover" />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={activityImageUrl(activity, 400)}
+            alt=""
+            className="-mx-4 -mt-4 h-40 w-[calc(100%+2rem)] rounded-t-xl object-cover"
+          />
           <DialogHeader>
             <DialogTitle>{activity.title}</DialogTitle>
             {activity.description && <DialogDescription>{activity.description}</DialogDescription>}

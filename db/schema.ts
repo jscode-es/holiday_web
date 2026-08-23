@@ -6,6 +6,7 @@ export const days = sqliteTable("days", {
   dayNumber: integer("day_number").notNull(),
   title: text("title").notNull(),
   summary: text("summary"),
+  imageUrl: text("image_url"),
 });
 
 export const activities = sqliteTable("activities", {

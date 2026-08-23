@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ActivityItem } from "@/components/calendar/activity-item";
 import { ActivityForm } from "@/components/calendar/activity-form";
+import { DayForm } from "@/components/itinerario/day-form";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
 
 export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [editing, setEditing] = useState<Activity | "new" | null>(null);
+  const [editingDay, setEditingDay] = useState(false);
 
   const day = days[index];
   if (!day) return null;
@@ -21,13 +24,22 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
       <div className="relative h-36 w-full bg-neutral-200">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`https://picsum.photos/seed/day-${day.id}/800/300`}
+          src={day.imageUrl || `https://picsum.photos/seed/day-${day.id}/800/300`}
           alt=""
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
 
         <div className="absolute top-3 right-3 flex items-center gap-1">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            className="bg-white/80 hover:bg-white"
+            onClick={() => setEditingDay(true)}
+            aria-label="Editar día"
+          >
+            <Pencil className="size-4" />
+          </Button>
           <Button
             size="icon-sm"
             variant="secondary"
@@ -93,6 +105,21 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
           </>
         )}
       </div>
+
+      <Dialog open={editingDay} onOpenChange={setEditingDay}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar día {day.dayNumber}</DialogTitle>
+          </DialogHeader>
+          <DayForm
+            day={day}
+            onDone={() => {
+              setEditingDay(false);
+              router.refresh();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
