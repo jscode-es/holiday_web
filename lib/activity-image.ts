@@ -11,8 +11,12 @@ const TYPE_SEED: Record<Activity["type"], string> = {
   hotel: "activity-hotel",
 };
 
-/** Returns the activity's own image if set, otherwise a generic 1:1 reference photo for its type. */
-export function activityImageUrl(activity: Pick<Activity, "type" | "imageUrl">, size = 300): string {
+/** Returns the activity's own image if set, otherwise a generic reference photo for its type. */
+export function activityImageUrl(
+  activity: Pick<Activity, "type" | "imageUrl">,
+  width = 300,
+  height = width
+): string {
   if (activity.imageUrl) return activity.imageUrl;
-  return `https://picsum.photos/seed/${TYPE_SEED[activity.type]}/${size}/${size}`;
+  return `https://picsum.photos/seed/${TYPE_SEED[activity.type]}/${width}/${height}`;
 }

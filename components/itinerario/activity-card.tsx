@@ -66,9 +66,9 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
   return (
     <div className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-4">
-      <div className="relative -mx-4 -mt-4 aspect-square w-[calc(100%+2rem)] overflow-hidden bg-neutral-100">
+      <div className="relative -mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] overflow-hidden bg-neutral-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={activityImageUrl(activity)} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <img src={activityImageUrl(activity, 480, 270)} alt="" loading="lazy" className="h-full w-full object-cover" />
         <span
           className={cn(
             "absolute top-2 left-2 flex size-8 items-center justify-center rounded-lg backdrop-blur",
@@ -125,9 +125,9 @@ export function ActivityCard({ activity }: { activity: Activity }) {
         <DialogContent className="sm:max-w-md">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={activityImageUrl(activity, 400)}
+            src={activityImageUrl(activity, 640, 360)}
             alt=""
-            className="-mx-4 -mt-4 h-40 w-[calc(100%+2rem)] rounded-t-xl object-cover"
+            className="-mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] rounded-t-xl object-cover"
           />
           <DialogHeader>
             <DialogTitle>{activity.title}</DialogTitle>
