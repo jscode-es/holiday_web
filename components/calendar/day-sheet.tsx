@@ -29,8 +29,11 @@ export function DaySheet({ day }: { day: DayWithActivities | undefined }) {
         {day && (
           <>
             <SheetHeader>
-              <SheetTitle>
-                Día {day.dayNumber} · {day.title}
+              <SheetTitle className="flex items-center gap-2 text-lg">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
+                  {day.dayNumber}
+                </span>
+                {day.title}
               </SheetTitle>
               {day.summary && <p className="text-sm text-muted-foreground">{day.summary}</p>}
             </SheetHeader>
@@ -47,7 +50,7 @@ export function DaySheet({ day }: { day: DayWithActivities | undefined }) {
                 />
               ) : (
                 <>
-                  <Button size="sm" className="mb-4" onClick={() => setEditing("new")}>
+                  <Button size="sm" className="mb-4 rounded-full" onClick={() => setEditing("new")}>
                     Añadir actividad
                   </Button>
                   <ScrollArea className="h-[60vh]">

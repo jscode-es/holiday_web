@@ -11,8 +11,8 @@ export default async function AccommodationDetailPage({
 
   if (id === "new") {
     return (
-      <div className="space-y-6 p-6">
-        <h1 className="text-2xl font-semibold">Nuevo alojamiento</h1>
+      <div className="space-y-6 px-8 py-8">
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Nuevo alojamiento</h1>
         <AccommodationForm />
       </div>
     );
@@ -22,8 +22,8 @@ export default async function AccommodationDetailPage({
   if (!accommodation) notFound();
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">{accommodation.name}</h1>
+    <div className="space-y-6 px-8 py-8">
+      <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{accommodation.name}</h1>
       <AccommodationForm accommodation={accommodation} />
     </div>
   );

@@ -138,7 +138,7 @@ export function ActivityForm({
         </div>
       </div>
 
-      <Button type="submit" disabled={saving}>
+      <Button type="submit" disabled={saving} className="rounded-full">
         {saving ? "Guardando…" : activity ? "Guardar cambios" : "Añadir actividad"}
       </Button>
     </form>

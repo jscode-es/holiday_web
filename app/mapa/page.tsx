@@ -5,9 +5,16 @@ export default async function MapaPage() {
   const [markers, routes] = await Promise.all([getMapMarkers(), getMapRoutes()]);
 
   return (
-    <div className="space-y-4 p-6">
-      <h1 className="text-2xl font-semibold">Mapa de rutas</h1>
-      <MapLoader markers={markers} routes={routes} />
+    <div className="space-y-6 px-8 py-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Mapa de rutas</h1>
+        <p className="text-sm text-neutral-400">
+          {markers.length} paradas · {routes.length} trayectos
+        </p>
+      </div>
+      <div className="overflow-hidden rounded-2xl border border-neutral-100">
+        <MapLoader markers={markers} routes={routes} />
+      </div>
     </div>
   );
 }

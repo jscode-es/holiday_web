@@ -115,7 +115,7 @@ export function AccommodationForm({ accommodation }: { accommodation?: Accommoda
         <Textarea id="notes" name="notes" defaultValue={accommodation?.notes ?? ""} />
       </div>
 
-      <Button type="submit" disabled={saving}>
+      <Button type="submit" disabled={saving} className="rounded-full">
         {saving ? "Guardando…" : accommodation ? "Guardar cambios" : "Añadir alojamiento"}
       </Button>
     </form>

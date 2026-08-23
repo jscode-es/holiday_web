@@ -2,6 +2,9 @@ import Link from "next/link";
 import { getAllAccommodations } from "@/lib/queries/accommodations";
 import { AccommodationCard } from "@/components/accommodations/accommodation-card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const statuses = ["confirmado", "programado", "pendiente"];
 
 export default async function AlojamientosPage({
   searchParams,
@@ -13,20 +16,26 @@ export default async function AlojamientosPage({
   const filtered = status ? accommodations.filter((a) => a.status === status) : accommodations;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 px-8 py-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Alojamientos</h1>
-        <Button size="sm" render={<Link href="/alojamientos/new" />}>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Alojamientos</h1>
+          <p className="text-sm text-neutral-400">{accommodations.length} reservas para el viaje</p>
+        </div>
+        <Button size="sm" className="rounded-full" nativeButton={false} render={<Link href="/alojamientos/new" />}>
           Añadir alojamiento
         </Button>
       </div>
 
       <div className="flex gap-2">
-        {["confirmado", "programado", "pendiente"].map((s) => (
+        {statuses.map((s) => (
           <Link
             key={s}
             href={status === s ? "/alojamientos" : `/alojamientos?status=${s}`}
-            className="text-sm underline-offset-2 hover:underline"
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+              status === s ? "bg-black text-white" : "bg-neutral-100 text-neutral-500 hover:text-neutral-900"
+            )}
           >
             {s}
           </Link>
@@ -34,8 +43,8 @@ export default async function AlojamientosPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((accommodation) => (
-          <AccommodationCard key={accommodation.id} accommodation={accommodation} />
+        {filtered.map((accommodation, index) => (
+          <AccommodationCard key={accommodation.id} accommodation={accommodation} index={index} />
         ))}
       </div>
     </div>
