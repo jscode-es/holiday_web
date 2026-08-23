@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig } from "@/lib/activity-type";
 import { youtubeEmbedUrl } from "@/lib/youtube";
+import { findAccommodationByName } from "@/lib/actions/accommodations";
 import type { Activity } from "@/lib/queries/days";
+import type { Accommodation } from "@/lib/queries/accommodations";
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -26,6 +29,18 @@ export function ActivityDetailDialog({
 }) {
   const config = typeConfig[activity.type];
   const embedUrl = activity.videoUrl ? youtubeEmbedUrl(activity.videoUrl) : null;
+  const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
+
+  useEffect(() => {
+    if (!open || activity.type !== "hotel") return;
+    let cancelled = false;
+    findAccommodationByName(activity.title).then((result) => {
+      if (!cancelled) setAccommodation(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, activity.type, activity.title]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,6 +75,15 @@ export function ActivityDetailDialog({
           {activity.destination && <DetailRow label="Destino" value={activity.destination} />}
           {activity.durationMin != null && <DetailRow label="Duración" value={`${activity.durationMin} min`} />}
           {activity.cost != null && <DetailRow label="Coste" value={`${activity.cost} ${activity.currency ?? ""}`} />}
+          {accommodation && (
+            <>
+              <DetailRow label="Entrada" value={accommodation.checkIn} />
+              <DetailRow label="Salida" value={accommodation.checkOut} />
+              {accommodation.cost != null && (
+                <DetailRow label="Coste" value={`${accommodation.cost} ${accommodation.currency ?? ""}`} />
+              )}
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
