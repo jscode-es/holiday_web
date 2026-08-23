@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   createBagItem,
   deleteBag,
@@ -21,6 +22,8 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(bag.name);
   const [newItem, setNewItem] = useState("");
+  const [confirmingDeleteBag, setConfirmingDeleteBag] = useState(false);
+  const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
 
   const packedCount = bag.items.filter((i) => i.packed).length;
   const total = bag.items.length;
@@ -38,7 +41,6 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
   }
 
   async function handleDeleteBag() {
-    if (!window.confirm(`¿Borrar "${bag.name}" y todo su contenido?`)) return;
     await deleteBag(bag.id);
     router.refresh();
   }
@@ -81,11 +83,18 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
           <Button size="icon-xs" variant="ghost" onClick={() => setRenaming(true)} aria-label="Renombrar">
             <Pencil className="size-3.5" />
           </Button>
-          <Button size="icon-xs" variant="ghost" onClick={handleDeleteBag} aria-label="Borrar maleta">
+          <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDeleteBag(true)} aria-label="Borrar maleta">
             <Trash2 className="size-3.5" />
           </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmingDeleteBag}
+        onOpenChange={setConfirmingDeleteBag}
+        title={`¿Borrar "${bag.name}" y todo su contenido?`}
+        onConfirm={handleDeleteBag}
+      />
 
       <div className="mb-3 space-y-1">
         <div className="flex items-center justify-between text-xs font-medium text-neutral-400">
@@ -124,10 +133,7 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
                 {item.label}
               </span>
               <button
-                onClick={async () => {
-                  await deleteBagItem(item.id);
-                  router.refresh();
-                }}
+                onClick={() => setDeletingItemId(item.id)}
                 className="opacity-0 transition-opacity group-hover:opacity-100"
                 aria-label="Borrar elemento"
               >
@@ -137,6 +143,17 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        open={deletingItemId != null}
+        onOpenChange={(open) => !open && setDeletingItemId(null)}
+        title="¿Borrar este elemento?"
+        onConfirm={async () => {
+          if (deletingItemId == null) return;
+          await deleteBagItem(deletingItemId);
+          router.refresh();
+        }}
+      />
 
       <form onSubmit={handleAddItem} className="mt-3 flex gap-2">
         <Input

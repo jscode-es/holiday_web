@@ -6,6 +6,7 @@ import { Plane, Eye, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ActivityForm } from "@/components/calendar/activity-form";
 import { ActivityDetailDialog } from "@/components/shared/activity-detail-dialog";
 import { deleteActivity } from "@/lib/actions/activities";
@@ -17,13 +18,13 @@ export function ActivityCard({ activity }: { activity: Activity }) {
   const router = useRouter();
   const [view, setView] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const isLongHaul = activity.type === "transport" && (activity.durationMin ?? 0) >= 360;
   const config = typeConfig[activity.type];
   const Icon = isLongHaul ? Plane : config.icon;
 
   async function handleDelete() {
-    if (!window.confirm(`¿Borrar "${activity.title}"?`)) return;
     await deleteActivity(activity.id);
     router.refresh();
   }
@@ -79,11 +80,18 @@ export function ActivityCard({ activity }: { activity: Activity }) {
           <Button size="icon-xs" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
             <Pencil className="size-3.5" />
           </Button>
-          <Button size="icon-xs" variant="ghost" onClick={handleDelete} aria-label="Borrar">
+          <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDelete(true)} aria-label="Borrar">
             <Trash2 className="size-3.5" />
           </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`¿Borrar "${activity.title}"?`}
+        onConfirm={handleDelete}
+      />
 
       <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} />
 

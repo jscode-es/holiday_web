@@ -6,6 +6,7 @@ import { Eye, Pencil, Trash2, MapPin, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AccommodationForm } from "./accommodation-form";
 import { deleteAccommodation } from "@/lib/actions/accommodations";
 import { googleMapsUrl } from "@/lib/google-maps";
@@ -32,11 +33,11 @@ export function AccommodationCard({ accommodation, index = 0 }: { accommodation:
   const router = useRouter();
   const [view, setView] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const gradient = cardGradients[index % cardGradients.length];
   const mapsUrl = googleMapsUrl(accommodation);
 
   async function handleDelete() {
-    if (!window.confirm(`¿Borrar "${accommodation.name}"?`)) return;
     await deleteAccommodation(accommodation.id);
     router.refresh();
   }
@@ -71,10 +72,17 @@ export function AccommodationCard({ accommodation, index = 0 }: { accommodation:
         <Button size="icon-xs" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
           <Pencil className="size-3.5" />
         </Button>
-        <Button size="icon-xs" variant="ghost" onClick={handleDelete} aria-label="Borrar">
+        <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDelete(true)} aria-label="Borrar">
           <Trash2 className="size-3.5" />
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`¿Borrar "${accommodation.name}"?`}
+        onConfirm={handleDelete}
+      />
 
       <Dialog open={view} onOpenChange={setView}>
         <DialogContent className="sm:max-w-md">

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig, statusStyle } from "@/lib/activity-type";
@@ -10,8 +12,15 @@ import type { Activity } from "@/lib/queries/days";
 import { deleteActivity } from "@/lib/actions/activities";
 
 export function ActivityItem({ activity, onEdit }: { activity: Activity; onEdit: (activity: Activity) => void }) {
+  const router = useRouter();
   const [view, setView] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const config = typeConfig[activity.type];
+
+  async function handleDelete() {
+    await deleteActivity(activity.id);
+    router.refresh();
+  }
 
   return (
     <div className="flex items-start justify-between gap-3 border-b border-neutral-100 py-4 last:border-0">
@@ -43,10 +52,17 @@ export function ActivityItem({ activity, onEdit }: { activity: Activity; onEdit:
         <Button size="sm" variant="ghost" onClick={() => onEdit(activity)}>
           Editar
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => deleteActivity(activity.id)}>
+        <Button size="sm" variant="ghost" onClick={() => setConfirmingDelete(true)}>
           Borrar
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`¿Borrar "${activity.title}"?`}
+        onConfirm={handleDelete}
+      />
 
       <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} />
     </div>

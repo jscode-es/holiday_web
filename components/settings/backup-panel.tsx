@@ -4,22 +4,16 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, Upload, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function BackupPanel() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   async function handleImportFile(file: File) {
-    if (
-      !window.confirm(
-        "Importar reemplazará TODOS los datos actuales de la web (días, actividades, alojamientos, maletas, checklist) por los del archivo. ¿Continuar?"
-      )
-    ) {
-      return;
-    }
-
     setResult(null);
     setImporting(true);
     try {
@@ -89,7 +83,8 @@ export function BackupPanel() {
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
-            if (file) handleImportFile(file);
+            if (file) setPendingFile(file);
+            e.target.value = "";
           }}
         />
         {result && (
@@ -101,6 +96,17 @@ export function BackupPanel() {
           </p>
         )}
       </div>
+
+      <ConfirmDialog
+        open={pendingFile != null}
+        onOpenChange={(open) => !open && setPendingFile(null)}
+        title="¿Importar copia de seguridad?"
+        description="Reemplazará TODOS los datos actuales de la web (días, actividades, alojamientos, maletas, checklist) por los del archivo."
+        confirmLabel="Importar"
+        onConfirm={async () => {
+          if (pendingFile) await handleImportFile(pendingFile);
+        }}
+      />
     </div>
   );
 }
