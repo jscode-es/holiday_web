@@ -1,7 +1,15 @@
+export type DailyForecast = {
+  date: string;
+  weatherCode: number;
+  max: number;
+  min: number;
+};
+
 export type WeatherInfo = {
   location: string;
   temperature: number;
   weatherCode: number;
+  daily: DailyForecast[];
 };
 
 const LOCATIONS: { location: string; lat: number; lon: number }[] = [
@@ -14,15 +22,24 @@ export async function getWeather(): Promise<WeatherInfo[]> {
     LOCATIONS.map(async ({ location, lat, lon }): Promise<WeatherInfo | null> => {
       try {
         const res = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`,
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`,
           { next: { revalidate: 1800 } }
         );
         if (!res.ok) return null;
         const data = await res.json();
+
+        const daily: DailyForecast[] = data.daily.time.map((date: string, i: number) => ({
+          date,
+          weatherCode: data.daily.weathercode[i],
+          max: Math.round(data.daily.temperature_2m_max[i]),
+          min: Math.round(data.daily.temperature_2m_min[i]),
+        }));
+
         return {
           location,
           temperature: Math.round(data.current_weather.temperature),
           weatherCode: data.current_weather.weathercode,
+          daily,
         };
       } catch {
         return null;

@@ -2,25 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  ListChecks,
-  Map,
-  Bed,
-  Wallet,
-  Luggage,
-  Sun,
-  Cloud,
-  CloudSun,
-  CloudRain,
-  CloudSnow,
-  CloudLightning,
-  CloudFog,
-  type LucideIcon,
-} from "lucide-react";
+import { LayoutDashboard, CalendarDays, ListChecks, Map, Bed, Luggage, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { weatherCategory, type WeatherInfo } from "@/lib/weather";
+import { WeatherCard } from "@/components/weather-dialog";
+import type { WeatherInfo } from "@/lib/weather";
 
 const links = [
   { href: "/", label: "Resumen", icon: LayoutDashboard },
@@ -31,40 +16,6 @@ const links = [
   { href: "/maletas", label: "Maletas", icon: Luggage },
   { href: "/presupuesto", label: "Presupuesto", icon: Wallet },
 ];
-
-const weatherIcon: Record<ReturnType<typeof weatherCategory>, LucideIcon> = {
-  clear: Sun,
-  cloudy: CloudSun,
-  fog: CloudFog,
-  rain: CloudRain,
-  snow: CloudSnow,
-  storm: CloudLightning,
-};
-
-function WeatherCard({ weather }: { weather: WeatherInfo[] }) {
-  if (weather.length === 0) return null;
-
-  return (
-    <div className="mx-3 mb-3 space-y-2 rounded-xl border border-neutral-100 bg-neutral-50 p-3">
-      <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-neutral-400 uppercase">
-        <Cloud className="size-3.5" />
-        Tiempo ahora
-      </p>
-      {weather.map((w) => {
-        const Icon = weatherIcon[weatherCategory(w.weatherCode)];
-        return (
-          <div key={w.location} className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-1.5 text-neutral-600">
-              <Icon className="size-4 text-neutral-400" />
-              {w.location}
-            </span>
-            <span className="font-semibold text-neutral-900">{w.temperature}°C</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
   const pathname = usePathname();
