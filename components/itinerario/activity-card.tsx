@@ -2,52 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Plane,
-  TrainFront,
-  MapPin,
-  Ticket,
-  UtensilsCrossed,
-  StickyNote,
-  AlertTriangle,
-  Bed,
-  Eye,
-  Pencil,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react";
+import { Plane, Eye, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ActivityForm } from "@/components/calendar/activity-form";
+import { ActivityDetailDialog } from "@/components/shared/activity-detail-dialog";
 import { deleteActivity } from "@/lib/actions/activities";
 import { activityImageUrl } from "@/lib/activity-image";
+import { typeConfig, statusStyle } from "@/lib/activity-type";
 import type { Activity } from "@/lib/queries/days";
-
-const typeConfig: Record<Activity["type"], { label: string; icon: LucideIcon; bg: string; fg: string }> = {
-  transport: { label: "Transporte", icon: TrainFront, bg: "bg-sky-50", fg: "text-sky-700" },
-  place: { label: "Lugar", icon: MapPin, bg: "bg-emerald-50", fg: "text-emerald-700" },
-  event: { label: "Evento", icon: Ticket, bg: "bg-violet-50", fg: "text-violet-700" },
-  comida: { label: "Comida", icon: UtensilsCrossed, bg: "bg-amber-50", fg: "text-amber-700" },
-  nota: { label: "Nota", icon: StickyNote, bg: "bg-neutral-100", fg: "text-neutral-600" },
-  aviso: { label: "Aviso", icon: AlertTriangle, bg: "bg-rose-50", fg: "text-rose-700" },
-  hotel: { label: "Hotel", icon: Bed, bg: "bg-neutral-900", fg: "text-white" },
-};
-
-const statusStyle: Record<string, string> = {
-  pendiente: "bg-rose-100 text-rose-700",
-  confirmado: "bg-emerald-100 text-emerald-700",
-  programado: "bg-neutral-100 text-neutral-600",
-};
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-4 border-b border-neutral-100 py-2 text-sm last:border-0">
-      <span className="text-neutral-400">{label}</span>
-      <span className="font-medium text-neutral-900">{value}</span>
-    </div>
-  );
-}
 
 export function ActivityCard({ activity }: { activity: Activity }) {
   const router = useRouter();
@@ -66,7 +30,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
   return (
     <div className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-4">
-      <div className="relative -mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] overflow-hidden bg-neutral-100">
+      <button onClick={() => setView(true)} className="relative -mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] overflow-hidden bg-neutral-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={activityImageUrl(activity, 480, 270)} alt="" loading="lazy" className="h-full w-full object-cover" />
         <span
@@ -83,7 +47,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
             {activity.time}
           </span>
         )}
-      </div>
+      </button>
 
       <div className="space-y-1">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -121,31 +85,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
         </div>
       </div>
 
-      <Dialog open={view} onOpenChange={setView}>
-        <DialogContent className="sm:max-w-md">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={activityImageUrl(activity, 640, 360)}
-            alt=""
-            className="-mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] rounded-t-xl object-cover"
-          />
-          <DialogHeader>
-            <DialogTitle>{activity.title}</DialogTitle>
-            {activity.description && <DialogDescription>{activity.description}</DialogDescription>}
-          </DialogHeader>
-          <div>
-            {activity.time && <DetailRow label="Hora" value={activity.time} />}
-            <DetailRow label="Tipo" value={config.label} />
-            {activity.status && <DetailRow label="Estado" value={activity.status} />}
-            {activity.origin && <DetailRow label="Origen" value={activity.origin} />}
-            {activity.destination && <DetailRow label="Destino" value={activity.destination} />}
-            {activity.durationMin != null && <DetailRow label="Duración" value={`${activity.durationMin} min`} />}
-            {activity.cost != null && (
-              <DetailRow label="Coste" value={`${activity.cost} ${activity.currency ?? ""}`} />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} />
 
       <Dialog open={editing} onOpenChange={setEditing}>
         <DialogContent className="sm:max-w-lg">
