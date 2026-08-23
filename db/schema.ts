@@ -52,6 +52,10 @@ export const accommodations = sqliteTable("accommodations", {
   lat: real("lat"),
   lng: real("lng"),
   notes: text("notes"),
+  confirmationNumber: text("confirmation_number"),
+  roomType: text("room_type"),
+  cancellationPolicy: text("cancellation_policy"),
+  phone: text("phone"),
 });
 
 export const checklistItems = sqliteTable("checklist_items", {

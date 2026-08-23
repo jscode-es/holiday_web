@@ -17,6 +17,10 @@ export type AccommodationInput = {
   lat: number | null;
   lng: number | null;
   notes: string | null;
+  confirmationNumber: string | null;
+  roomType: string | null;
+  cancellationPolicy: string | null;
+  phone: string | null;
 };
 
 function revalidateAccommodationPaths() {

@@ -36,7 +36,7 @@ export function AccommodationForm({
     setSaving(true);
     const formData = new FormData(e.currentTarget);
 
-    const input: AccommodationInput = {
+    const fields = {
       name: formData.get("name") as string,
       checkIn: formData.get("checkIn") as string,
       checkOut: formData.get("checkOut") as string,
@@ -45,22 +45,26 @@ export function AccommodationForm({
       currency: (formData.get("currency") as AccommodationInput["currency"]) || null,
       status,
       address: (formData.get("address") as string) || null,
-      lat: null,
-      lng: null,
       notes: (formData.get("notes") as string) || null,
+      confirmationNumber: (formData.get("confirmationNumber") as string) || null,
+      roomType: (formData.get("roomType") as string) || null,
+      cancellationPolicy: (formData.get("cancellationPolicy") as string) || null,
+      phone: (formData.get("phone") as string) || null,
     };
 
     if (accommodation) {
-      await updateAccommodation(accommodation.id, input);
+      // Partial update: lat/lng aren't editable in this form, so they're
+      // intentionally omitted here rather than nulled out.
+      await updateAccommodation(accommodation.id, fields);
     } else {
-      await createAccommodation(input);
+      await createAccommodation({ ...fields, lat: null, lng: null });
     }
     setSaving(false);
     onDone();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
+    <form onSubmit={handleSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
       <div className="space-y-2">
         <Label htmlFor="name">Nombre</Label>
         <Input id="name" name="name" defaultValue={accommodation?.name ?? ""} required />
@@ -109,8 +113,44 @@ export function AccommodationForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address">Dirección</Label>
-        <Input id="address" name="address" defaultValue={accommodation?.address ?? ""} />
+        <Label htmlFor="address">Dirección / ubicación</Label>
+        <Input
+          id="address"
+          name="address"
+          placeholder="Se usa para el botón «Ver en Google Maps»"
+          defaultValue={accommodation?.address ?? ""}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="confirmationNumber">Nº de confirmación</Label>
+          <Input
+            id="confirmationNumber"
+            name="confirmationNumber"
+            defaultValue={accommodation?.confirmationNumber ?? ""}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="roomType">Tipo de habitación</Label>
+          <Input id="roomType" name="roomType" placeholder="p. ej. Doble Deluxe" defaultValue={accommodation?.roomType ?? ""} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="cancellationPolicy">Política de cancelación</Label>
+          <Input
+            id="cancellationPolicy"
+            name="cancellationPolicy"
+            placeholder="p. ej. Gratis hasta el 20 sep"
+            defaultValue={accommodation?.cancellationPolicy ?? ""}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="phone">Teléfono del hotel</Label>
+          <Input id="phone" name="phone" type="tel" defaultValue={accommodation?.phone ?? ""} />
+        </div>
       </div>
 
       <div className="space-y-2">

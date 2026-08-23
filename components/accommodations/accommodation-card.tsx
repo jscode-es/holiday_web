@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Pencil, Trash2, MapPin } from "lucide-react";
+import { Eye, Pencil, Trash2, MapPin, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -89,20 +89,41 @@ export function AccommodationCard({ accommodation, index = 0 }: { accommodation:
             {accommodation.cost != null && (
               <DetailRow label="Coste" value={`${accommodation.cost} ${accommodation.currency ?? ""}`} />
             )}
+            {accommodation.roomType && <DetailRow label="Habitación" value={accommodation.roomType} />}
+            {accommodation.confirmationNumber && (
+              <DetailRow label="Nº de confirmación" value={accommodation.confirmationNumber} />
+            )}
+            {accommodation.cancellationPolicy && (
+              <DetailRow label="Cancelación" value={accommodation.cancellationPolicy} />
+            )}
+            {accommodation.phone && <DetailRow label="Teléfono" value={accommodation.phone} />}
             {accommodation.address && <DetailRow label="Dirección" value={accommodation.address} />}
             {accommodation.notes && <DetailRow label="Notas" value={accommodation.notes} />}
           </div>
-          {mapsUrl && (
-            <Button
-              variant="outline"
-              className="rounded-full"
-              nativeButton={false}
-              render={<a href={mapsUrl} target="_blank" rel="noopener noreferrer" />}
-            >
-              <MapPin className="size-4" />
-              Ver en Google Maps
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {mapsUrl && (
+              <Button
+                variant="outline"
+                className="flex-1 rounded-full"
+                nativeButton={false}
+                render={<a href={mapsUrl} target="_blank" rel="noopener noreferrer" />}
+              >
+                <MapPin className="size-4" />
+                Google Maps
+              </Button>
+            )}
+            {accommodation.phone && (
+              <Button
+                variant="outline"
+                className="flex-1 rounded-full"
+                nativeButton={false}
+                render={<a href={`tel:${accommodation.phone}`} />}
+              >
+                <Phone className="size-4" />
+                Llamar
+              </Button>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
