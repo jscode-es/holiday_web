@@ -1,6 +1,7 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { isReadOnly } from "@/lib/env";
 import type { ChecklistItem } from "@/lib/queries/checklist";
 import { toggleChecklistItem } from "@/lib/actions/checklist";
 
@@ -14,6 +15,7 @@ export function Checklist({ items }: { items: ChecklistItem[] }) {
         >
           <Checkbox
             checked={item.done}
+            disabled={isReadOnly}
             onCheckedChange={(checked) => toggleChecklistItem(item.id, checked === true)}
           />
           <span className={`text-sm ${item.done ? "text-neutral-400 line-through" : "text-neutral-700"}`}>

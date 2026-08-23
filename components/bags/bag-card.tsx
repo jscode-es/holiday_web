@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { isReadOnly } from "@/lib/env";
 import {
   createBagItem,
   deleteBag,
@@ -79,14 +80,16 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
             <p className="truncate text-sm font-semibold text-neutral-900">{bag.name}</p>
           )}
         </div>
-        <div className="flex shrink-0 gap-1">
-          <Button size="icon-xs" variant="ghost" onClick={() => setRenaming(true)} aria-label="Renombrar">
-            <Pencil className="size-3.5" />
-          </Button>
-          <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDeleteBag(true)} aria-label="Borrar maleta">
-            <Trash2 className="size-3.5" />
-          </Button>
-        </div>
+        {!isReadOnly && (
+          <div className="flex shrink-0 gap-1">
+            <Button size="icon-xs" variant="ghost" onClick={() => setRenaming(true)} aria-label="Renombrar">
+              <Pencil className="size-3.5" />
+            </Button>
+            <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDeleteBag(true)} aria-label="Borrar maleta">
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog
@@ -119,6 +122,7 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
             <div key={item.id} className="group flex items-center gap-2 rounded-lg px-1 py-1 hover:bg-neutral-50">
               <Checkbox
                 checked={item.packed}
+                disabled={isReadOnly}
                 onCheckedChange={async (checked) => {
                   await toggleBagItem(item.id, checked === true);
                   router.refresh();
@@ -132,13 +136,15 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
               >
                 {item.label}
               </span>
-              <button
-                onClick={() => setDeletingItem({ id: item.id, label: item.label })}
-                className="opacity-0 transition-opacity group-hover:opacity-100"
-                aria-label="Borrar elemento"
-              >
-                <X className="size-3.5 text-neutral-400 hover:text-rose-600" />
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={() => setDeletingItem({ id: item.id, label: item.label })}
+                  className="opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-label="Borrar elemento"
+                >
+                  <X className="size-3.5 text-neutral-400 hover:text-rose-600" />
+                </button>
+              )}
             </div>
           ))
         )}
@@ -155,17 +161,19 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
         }}
       />
 
-      <form onSubmit={handleAddItem} className="mt-3 flex gap-2">
-        <Input
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          placeholder="Añadir elemento…"
-          className="h-8 flex-1"
-        />
-        <Button type="submit" size="icon-sm" variant="secondary" aria-label="Añadir">
-          <Plus className="size-4" />
-        </Button>
-      </form>
+      {!isReadOnly && (
+        <form onSubmit={handleAddItem} className="mt-3 flex gap-2">
+          <Input
+            value={newItem}
+            onChange={(e) => setNewItem(e.target.value)}
+            placeholder="Añadir elemento…"
+            className="h-8 flex-1"
+          />
+          <Button type="submit" size="icon-sm" variant="secondary" aria-label="Añadir">
+            <Plus className="size-4" />
+          </Button>
+        </form>
+      )}
     </div>
   );
 }

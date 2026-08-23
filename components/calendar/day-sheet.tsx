@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ActivityItem } from "./activity-item";
 import { ActivityForm } from "./activity-form";
+import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
 
 export function DaySheet({ day }: { day: DayWithActivities | undefined }) {
@@ -50,9 +51,11 @@ export function DaySheet({ day }: { day: DayWithActivities | undefined }) {
                 />
               ) : (
                 <>
-                  <Button size="sm" className="mb-4 rounded-full" onClick={() => setEditing("new")}>
-                    Añadir actividad
-                  </Button>
+                  {!isReadOnly && (
+                    <Button size="sm" className="mb-4 rounded-full" onClick={() => setEditing("new")}>
+                      Añadir actividad
+                    </Button>
+                  )}
                   <ScrollArea className="h-[60vh]">
                     {day.activities.map((activity) => (
                       <ActivityItem key={activity.id} activity={activity} onEdit={setEditing} />

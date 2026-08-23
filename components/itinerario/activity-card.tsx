@@ -12,6 +12,7 @@ import { ActivityDetailDialog } from "@/components/shared/activity-detail-dialog
 import { deleteActivity } from "@/lib/actions/activities";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig, statusStyle } from "@/lib/activity-type";
+import { isReadOnly } from "@/lib/env";
 import type { Activity } from "@/lib/queries/days";
 
 export function ActivityCard({ activity }: { activity: Activity }) {
@@ -77,12 +78,16 @@ export function ActivityCard({ activity }: { activity: Activity }) {
           <Button size="icon-xs" variant="ghost" onClick={() => setView(true)} aria-label="Ver más">
             <Eye className="size-3.5" />
           </Button>
-          <Button size="icon-xs" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
-            <Pencil className="size-3.5" />
-          </Button>
-          <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDelete(true)} aria-label="Borrar">
-            <Trash2 className="size-3.5" />
-          </Button>
+          {!isReadOnly && (
+            <>
+              <Button size="icon-xs" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
+                <Pencil className="size-3.5" />
+              </Button>
+              <Button size="icon-xs" variant="ghost" onClick={() => setConfirmingDelete(true)} aria-label="Borrar">
+                <Trash2 className="size-3.5" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

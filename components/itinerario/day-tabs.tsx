@@ -10,6 +10,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { ActivityForm } from "@/components/calendar/activity-form";
 import { ActivityCard } from "./activity-card";
 import { DayForm } from "./day-form";
+import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities } from "@/lib/queries/days";
 
 export function DayTabs({ days }: { days: DayWithActivities[] }) {
@@ -68,19 +69,23 @@ export function DayTabs({ days }: { days: DayWithActivities[] }) {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-neutral-900">{day.title}</h2>
-                <Button size="icon-xs" variant="ghost" onClick={() => setEditingDay(true)} aria-label="Editar día">
-                  <Pencil className="size-3.5" />
-                </Button>
+                {!isReadOnly && (
+                  <Button size="icon-xs" variant="ghost" onClick={() => setEditingDay(true)} aria-label="Editar día">
+                    <Pencil className="size-3.5" />
+                  </Button>
+                )}
               </div>
               <p className="text-sm text-neutral-400">
                 {day.date} · {day.activities.length} {day.activities.length === 1 ? "actividad" : "actividades"}
               </p>
               {day.summary && <p className="mt-2 max-w-3xl text-sm text-neutral-500">{day.summary}</p>}
             </div>
-            <Button size="sm" className="rounded-full" onClick={() => setAdding(true)}>
-              <Plus className="size-4" />
-              Añadir actividad
-            </Button>
+            {!isReadOnly && (
+              <Button size="sm" className="rounded-full" onClick={() => setAdding(true)}>
+                <Plus className="size-4" />
+                Añadir actividad
+              </Button>
+            )}
           </div>
 
           {day.activities.length === 0 ? (

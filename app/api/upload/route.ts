@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import { isReadOnly } from "@/lib/env";
 
 const ALLOWED_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -12,6 +13,13 @@ const ALLOWED_TYPES: Record<string, string> = {
 const MAX_SIZE = 5 * 1024 * 1024;
 
 export async function POST(request: Request) {
+  if (isReadOnly) {
+    return Response.json(
+      { error: "La subida de imágenes no está disponible en la versión desplegada." },
+      { status: 403 }
+    );
+  }
+
   const formData = await request.formData();
   const file = formData.get("file");
 

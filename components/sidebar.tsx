@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarDays, ListChecks, Map, Luggage, Wallet, Settings, Menu, X } from "lucide-react";
+import { LayoutDashboard, CalendarDays, ListChecks, Map, Luggage, Wallet, Settings, Menu, X, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { WeatherCard } from "@/components/weather-dialog";
+import { isReadOnly } from "@/lib/env";
 import type { WeatherInfo } from "@/lib/weather";
 
 const links = [
@@ -98,6 +99,13 @@ export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
             );
           })}
         </nav>
+
+        {isReadOnly && (
+          <p className="mx-3 mb-3 flex items-center gap-1.5 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+            <Eye className="size-3.5 shrink-0" />
+            Solo lectura — edita en local
+          </p>
+        )}
 
         <WeatherCard weather={weather} />
 

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ActivityItem } from "@/components/calendar/activity-item";
 import { ActivityForm } from "@/components/calendar/activity-form";
 import { DayForm } from "@/components/itinerario/day-form";
+import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
 
 export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
@@ -31,15 +32,17 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
 
         <div className="absolute top-3 right-3 flex items-center gap-1">
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            className="bg-white/80 hover:bg-white"
-            onClick={() => setEditingDay(true)}
-            aria-label="Editar día"
-          >
-            <Pencil className="size-4" />
-          </Button>
+          {!isReadOnly && (
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              className="bg-white/80 hover:bg-white"
+              onClick={() => setEditingDay(true)}
+              aria-label="Editar día"
+            >
+              <Pencil className="size-4" />
+            </Button>
+          )}
           <Button
             size="icon-sm"
             variant="secondary"
@@ -89,10 +92,12 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
           />
         ) : (
           <>
-            <Button size="sm" className="mb-2 rounded-full" onClick={() => setEditing("new")}>
-              <Plus className="size-4" />
-              Añadir actividad
-            </Button>
+            {!isReadOnly && (
+              <Button size="sm" className="mb-2 rounded-full" onClick={() => setEditing("new")}>
+                <Plus className="size-4" />
+                Añadir actividad
+              </Button>
+            )}
             <div className="max-h-85 overflow-y-auto">
               {day.activities.length === 0 ? (
                 <p className="py-6 text-center text-sm text-neutral-400">Sin actividades este día todavía.</p>

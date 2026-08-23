@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig, statusStyle } from "@/lib/activity-type";
 import { ActivityDetailDialog } from "@/components/shared/activity-detail-dialog";
+import { isReadOnly } from "@/lib/env";
 import type { Activity } from "@/lib/queries/days";
 import { deleteActivity } from "@/lib/actions/activities";
 
@@ -48,14 +49,16 @@ export function ActivityItem({ activity, onEdit }: { activity: Activity; onEdit:
           {activity.description && <p className="line-clamp-2 text-sm text-neutral-500">{activity.description}</p>}
         </div>
       </button>
-      <div className="flex shrink-0 gap-1">
-        <Button size="sm" variant="ghost" onClick={() => onEdit(activity)}>
-          Editar
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setConfirmingDelete(true)}>
-          Borrar
-        </Button>
-      </div>
+      {!isReadOnly && (
+        <div className="flex shrink-0 gap-1">
+          <Button size="sm" variant="ghost" onClick={() => onEdit(activity)}>
+            Editar
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setConfirmingDelete(true)}>
+            Borrar
+          </Button>
+        </div>
+      )}
 
       <ConfirmDialog
         open={confirmingDelete}

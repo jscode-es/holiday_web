@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createBag } from "@/lib/actions/bags";
+import { isReadOnly } from "@/lib/env";
 
 export function AddBagButton() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export function AddBagButton() {
     setOpen(false);
     router.refresh();
   }
+
+  if (isReadOnly) return null;
 
   return (
     <>
