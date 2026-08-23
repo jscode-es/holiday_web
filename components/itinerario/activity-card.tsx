@@ -30,7 +30,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
   return (
     <div className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-4">
-      <button onClick={() => setView(true)} className="relative -mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] overflow-hidden bg-neutral-100">
+      <button onClick={() => setView(true)} className="relative -mx-4 -mt-4 aspect-video w-[calc(100%_+_2rem)] overflow-hidden bg-neutral-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={activityImageUrl(activity, 480, 270)} alt="" loading="lazy" className="h-full w-full object-cover" />
         <span

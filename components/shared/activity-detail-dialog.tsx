@@ -28,12 +28,14 @@ export function ActivityDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={activityImageUrl(activity, 640, 360)}
-          alt=""
-          className="-mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] rounded-t-xl object-cover"
-        />
+        <div className="relative -mx-4 -mt-4 aspect-video overflow-hidden rounded-t-xl bg-neutral-100">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={activityImageUrl(activity, 640, 360)}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </div>
         <DialogHeader>
           <DialogTitle>{activity.title}</DialogTitle>
           {activity.description && <DialogDescription>{activity.description}</DialogDescription>}
