@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Japón 2026",
-  description: "Itinerario del viaje a Japón, 27 sep - 16 oct 2026",
+  title: "Vacaciones",
+  description: "Organiza y consulta tus viajes",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

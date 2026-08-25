@@ -40,8 +40,8 @@ function LoginForm() {
           <span className="mx-auto flex size-10 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
             田
           </span>
-          <h1 className="pt-2 text-lg font-bold tracking-tight text-neutral-900">Japón 2026</h1>
-          <p className="text-sm text-neutral-400">Accede para ver el viaje</p>
+          <h1 className="pt-2 text-lg font-bold tracking-tight text-neutral-900">Vacaciones</h1>
+          <p className="text-sm text-neutral-400">Accede para ver tus viajes</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

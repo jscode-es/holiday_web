@@ -1,4 +1,4 @@
-const seeds = ["fukuoka", "yufuin", "beppu", "naoshima", "osaka", "nagoya", "hakone", "tokyo"];
+const seeds = ["viaje-1", "viaje-2", "viaje-3", "viaje-4", "viaje-5", "viaje-6", "viaje-7", "viaje-8"];
 
 export function Gallery() {
   return (
