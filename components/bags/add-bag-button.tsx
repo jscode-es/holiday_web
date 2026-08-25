@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { createBag } from "@/lib/actions/bags";
 import { isReadOnly } from "@/lib/env";
 
-export function AddBagButton() {
+export function AddBagButton({ tripId }: { tripId: number }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -20,7 +20,7 @@ export function AddBagButton() {
     const trimmed = name.trim();
     if (!trimmed) return;
     setSaving(true);
-    await createBag(trimmed);
+    await createBag(tripId, trimmed);
     setSaving(false);
     setName("");
     setOpen(false);

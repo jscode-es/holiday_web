@@ -12,8 +12,8 @@ export async function toggleChecklistItem(id: number, done: boolean) {
   revalidatePath("/presupuesto");
 }
 
-export async function createChecklistItem(label: string) {
+export async function createChecklistItem(tripId: number, label: string) {
   assertMutable();
-  db.insert(checklistItems).values({ label, done: false }).run();
+  db.insert(checklistItems).values({ tripId, label, done: false }).run();
   revalidatePath("/presupuesto");
 }

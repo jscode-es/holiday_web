@@ -10,9 +10,9 @@ function revalidateBagsPath() {
   revalidatePath("/maletas");
 }
 
-export async function createBag(name: string) {
+export async function createBag(tripId: number, name: string) {
   assertMutable();
-  const row = db.insert(bags).values({ name }).returning().get();
+  const row = db.insert(bags).values({ tripId, name }).returning().get();
   revalidateBagsPath();
   return row;
 }
