@@ -15,7 +15,9 @@ export const trips = sqliteTable("trips", {
 
 export const days = sqliteTable("days", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  tripId: integer("trip_id").references(() => trips.id, { onDelete: "cascade" }),
+  tripId: integer("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
   date: text("date").notNull(),
   dayNumber: integer("day_number").notNull(),
   title: text("title").notNull(),
@@ -53,7 +55,9 @@ export const activities = sqliteTable("activities", {
 
 export const accommodations = sqliteTable("accommodations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  tripId: integer("trip_id").references(() => trips.id, { onDelete: "cascade" }),
+  tripId: integer("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   checkIn: text("check_in").notNull(),
   checkOut: text("check_out").notNull(),
@@ -75,14 +79,18 @@ export const accommodations = sqliteTable("accommodations", {
 
 export const checklistItems = sqliteTable("checklist_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  tripId: integer("trip_id").references(() => trips.id, { onDelete: "cascade" }),
+  tripId: integer("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
   label: text("label").notNull(),
   done: integer("done", { mode: "boolean" }).notNull().default(false),
 });
 
 export const bags = sqliteTable("bags", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  tripId: integer("trip_id").references(() => trips.id, { onDelete: "cascade" }),
+  tripId: integer("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
 });
 
