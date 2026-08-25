@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { days, activities, accommodations, checklistItems } from "./schema";
+import { days, activities, accommodations, checklistItems, trips } from "./schema";
 import {
   daySeeds,
   activitySeeds,
@@ -8,6 +8,21 @@ import {
 } from "./seed-data";
 
 async function main() {
+  const [existingTrip] = await db.select().from(trips).limit(1);
+  const trip =
+    existingTrip ??
+    db
+      .insert(trips)
+      .values({
+        name: "Japón 2026",
+        emoji: "🇯🇵",
+        startDate: "2026-09-27",
+        endDate: "2026-10-16",
+        travelers: 2,
+      })
+      .returning()
+      .get();
+
   db.delete(activities).run();
   db.delete(days).run();
   db.delete(accommodations).run();
@@ -15,7 +30,7 @@ async function main() {
 
   const dayIdByNumber = new Map<number, number>();
   for (const day of daySeeds) {
-    const row = db.insert(days).values(day).returning().get();
+    const row = db.insert(days).values({ ...day, tripId: trip.id }).returning().get();
     dayIdByNumber.set(day.dayNumber, row.id);
   }
 
@@ -28,11 +43,11 @@ async function main() {
   }
 
   for (const accommodation of accommodationSeeds) {
-    db.insert(accommodations).values(accommodation).run();
+    db.insert(accommodations).values({ ...accommodation, tripId: trip.id }).run();
   }
 
   for (const label of checklistSeeds) {
-    db.insert(checklistItems).values({ label, done: false }).run();
+    db.insert(checklistItems).values({ label, done: false, tripId: trip.id }).run();
   }
 
   console.log(
