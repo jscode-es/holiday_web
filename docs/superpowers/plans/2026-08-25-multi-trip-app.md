@@ -121,8 +121,12 @@ Expected: no errors.
 
 - [ ] **Step 4: Commit**
 
+`sqlite.db` is tracked in git (see the repo's commit history: "chore: commit sqlite.db so
+the public deployment ships with real data") — `db:push` just wrote to it, so it must be
+staged alongside the schema change, not left as a silent uncommitted diff.
+
 ```bash
-git add db/schema.ts
+git add db/schema.ts sqlite.db
 git commit -m "$(cat <<'EOF'
 feat(db): add trips table and nullable tripId columns
 
@@ -149,7 +153,7 @@ Create `scripts/backfill-trip.ts`:
 ```ts
 import { db } from "../db";
 import { trips, days, accommodations, checklistItems, bags } from "../db/schema";
-import { isNull, eq } from "drizzle-orm";
+import { isNull } from "drizzle-orm";
 
 async function main() {
   const [existingTrip] = await db.select().from(trips).limit(1);
@@ -181,21 +185,10 @@ async function main() {
 
   console.log(`Trip "${trip.name}" (id ${trip.id}).`);
   console.log("Rows still missing tripId (should all be 0):", remaining);
-  void eq;
 }
 
 main();
 ```
-
-(The unused `eq` import guard (`void eq;`) is only there because `eq` isn't otherwise used; simpler: just don't import `eq` at all — remove it from the import line since only `isNull` is used.)
-
-Correct the import line to:
-
-```ts
-import { isNull } from "drizzle-orm";
-```
-
-and delete the `void eq;` line.
 
 - [ ] **Step 2: Run the backfill**
 
@@ -204,8 +197,11 @@ Expected output: `Trip "Japón 2026" (id 1).` followed by `Rows still missing tr
 
 - [ ] **Step 3: Commit**
 
+The backfill wrote real data into `sqlite.db` (the new trip row plus every `tripId`
+backfilled) — stage it alongside the script, same reasoning as Task 1's commit.
+
 ```bash
-git add scripts/backfill-trip.ts
+git add scripts/backfill-trip.ts sqlite.db
 git commit -m "$(cat <<'EOF'
 chore(db): backfill existing data into a Japón 2026 trip row
 
@@ -255,8 +251,11 @@ Expected: no errors.
 
 - [ ] **Step 5: Commit**
 
+`--force` push rewrote the four tables on disk (SQLite recreate-table strategy) — stage
+`sqlite.db` alongside the schema change, same reasoning as Tasks 1 and 2.
+
 ```bash
-git add db/schema.ts
+git add db/schema.ts sqlite.db
 git commit -m "$(cat <<'EOF'
 feat(db): require tripId on days, accommodations, checklist_items, bags
 
