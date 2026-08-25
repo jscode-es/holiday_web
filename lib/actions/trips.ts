@@ -1,12 +1,48 @@
 "use server";
 
 import { db } from "@/db";
-import { trips } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { trips, days } from "@/db/schema";
+import { eq, asc } from "drizzle-orm";
+import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { assertMutable } from "@/lib/env";
 import { ACTIVE_TRIP_COOKIE } from "@/lib/trips";
+
+/**
+ * Keeps `days` in sync with a trip's date range: adds a placeholder day for
+ * every date in [startDate, endDate] that doesn't have one yet, deletes days
+ * whose date fell outside the new range (cascades to their activities), and
+ * renumbers everything left by date order.
+ */
+async function syncDaysToRange(tripId: number, startDate: string, endDate: string) {
+  const existing = await db.select().from(days).where(eq(days.tripId, tripId));
+  const rangeDates = eachDayOfInterval({ start: parseISO(startDate), end: parseISO(endDate) }).map((d) =>
+    format(d, "yyyy-MM-dd")
+  );
+  const rangeSet = new Set(rangeDates);
+  const existingDates = new Set(existing.map((d) => d.date));
+
+  for (const day of existing) {
+    if (!rangeSet.has(day.date)) {
+      db.delete(days).where(eq(days.id, day.id)).run();
+    }
+  }
+
+  for (const date of rangeDates) {
+    if (!existingDates.has(date)) {
+      db.insert(days).values({ tripId, date, dayNumber: 0, title: "Día sin planificar" }).run();
+    }
+  }
+
+  const remaining = await db.select().from(days).where(eq(days.tripId, tripId)).orderBy(asc(days.date));
+  remaining.forEach((day, index) => {
+    const dayNumber = index + 1;
+    if (day.dayNumber !== dayNumber) {
+      db.update(days).set({ dayNumber }).where(eq(days.id, day.id)).run();
+    }
+  });
+}
 
 export async function createTrip(input: { name: string; emoji: string | null }) {
   assertMutable();
@@ -41,8 +77,16 @@ export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>
     if (!trimmed) throw new Error("El nombre del viaje no puede estar vacío.");
     fields.name = trimmed;
   }
+  if (fields.startDate && fields.endDate && fields.startDate > fields.endDate) {
+    throw new Error("La fecha de inicio no puede ser posterior a la fecha de fin.");
+  }
   const row = db.update(trips).set(fields).where(eq(trips.id, tripId)).returning().get();
+  if (row.startDate && row.endDate) {
+    await syncDaysToRange(tripId, row.startDate, row.endDate);
+  }
   revalidatePath("/", "layout");
+  revalidatePath("/calendario");
+  revalidatePath("/itinerario");
   return row;
 }
 

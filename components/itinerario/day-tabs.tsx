@@ -123,7 +123,6 @@ export function DayTabs({ days }: { days: DayWithActivities[] }) {
                 <DialogTitle>Editar día {day.dayNumber}</DialogTitle>
               </DialogHeader>
               <DayForm
-                tripId={day.tripId}
                 day={day}
                 onDone={() => {
                   setEditingDay(false);
