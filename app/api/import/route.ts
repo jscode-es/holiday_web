@@ -1,8 +1,9 @@
 import { db } from "@/db";
-import { days, activities, accommodations, checklistItems, bags, bagItems } from "@/db/schema";
+import { trips, days, activities, accommodations, checklistItems, bags, bagItems } from "@/db/schema";
 
 type Backup = {
   version: number;
+  trips: (typeof trips.$inferInsert)[];
   days: (typeof days.$inferInsert)[];
   activities: (typeof activities.$inferInsert)[];
   accommodations: (typeof accommodations.$inferInsert)[];
@@ -15,7 +16,8 @@ function isBackup(value: unknown): value is Backup {
   if (!value || typeof value !== "object") return false;
   const b = value as Record<string, unknown>;
   return (
-    b.version === 1 &&
+    b.version === 2 &&
+    Array.isArray(b.trips) &&
     Array.isArray(b.days) &&
     Array.isArray(b.activities) &&
     Array.isArray(b.accommodations) &&
@@ -49,18 +51,21 @@ export async function POST(request: Request) {
     tx.delete(bags).run();
     tx.delete(accommodations).run();
     tx.delete(checklistItems).run();
+    tx.delete(trips).run();
 
+    if (backup.trips.length) tx.insert(trips).values(backup.trips).run();
     if (backup.days.length) tx.insert(days).values(backup.days).run();
-    if (backup.activities.length) tx.insert(activities).values(backup.activities).run();
     if (backup.accommodations.length) tx.insert(accommodations).values(backup.accommodations).run();
     if (backup.checklistItems.length) tx.insert(checklistItems).values(backup.checklistItems).run();
     if (backup.bags.length) tx.insert(bags).values(backup.bags).run();
+    if (backup.activities.length) tx.insert(activities).values(backup.activities).run();
     if (backup.bagItems.length) tx.insert(bagItems).values(backup.bagItems).run();
   });
 
   return Response.json({
     ok: true,
     counts: {
+      trips: backup.trips.length,
       days: backup.days.length,
       activities: backup.activities.length,
       accommodations: backup.accommodations.length,
