@@ -3,10 +3,11 @@ import { getBudgetSummary, getPendingItems } from "@/lib/queries/budget";
 import { getChecklistItems } from "@/lib/queries/checklist";
 import { Checklist } from "@/components/budget/checklist";
 import { cn } from "@/lib/utils";
+import { EmptyTripsState } from "@/components/trips/empty-trips-state";
 
 export default async function PresupuestoPage() {
   const trip = await getActiveTrip();
-  if (!trip) return null;
+  if (!trip) return <EmptyTripsState />;
   const [summary, pending, checklist] = await Promise.all([
     getBudgetSummary(trip.id),
     getPendingItems(trip.id),

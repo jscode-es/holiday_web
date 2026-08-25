@@ -1,10 +1,11 @@
 import { getActiveTrip } from "@/lib/trips";
 import { getMapMarkers, getMapRoutes } from "@/lib/queries/map";
 import { MapLoader } from "@/components/map/map-loader";
+import { EmptyTripsState } from "@/components/trips/empty-trips-state";
 
 export default async function MapaPage() {
   const trip = await getActiveTrip();
-  if (!trip) return null;
+  if (!trip) return <EmptyTripsState />;
   const [markers, routes] = await Promise.all([getMapMarkers(trip.id), getMapRoutes(trip.id)]);
 
   return (

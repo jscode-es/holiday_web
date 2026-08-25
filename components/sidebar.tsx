@@ -21,7 +21,17 @@ const links = [
   { href: "/presupuesto", label: "Presupuesto", icon: Wallet },
 ];
 
-export function Sidebar({ weather, trip, trips }: { weather: WeatherInfo[]; trip: Trip; trips: Trip[] }) {
+export function Sidebar({
+  weather,
+  trip,
+  trips,
+  dayCount,
+}: {
+  weather: WeatherInfo[];
+  trip: Trip | null;
+  trips: Trip[];
+  dayCount: number;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -35,7 +45,16 @@ export function Sidebar({ weather, trip, trips }: { weather: WeatherInfo[]; trip
     <>
       <header className="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-100 bg-white px-4 py-3 md:hidden">
         <div className="min-w-0 flex-1">
-          <TripSwitcher activeTrip={trip} trips={trips} />
+          {trip ? (
+            <TripSwitcher activeTrip={trip} trips={trips} />
+          ) : (
+            <div className="flex items-center gap-2 px-1 py-1">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-400">
+                🧳
+              </span>
+              <p className="truncate text-sm font-semibold text-neutral-400">Sin viajes todavía</p>
+            </div>
+          )}
         </div>
         <Button size="icon-sm" variant="ghost" onClick={() => setOpen(true)} aria-label="Abrir menú">
           <Menu className="size-5" />
@@ -59,7 +78,16 @@ export function Sidebar({ weather, trip, trips }: { weather: WeatherInfo[]; trip
       >
         <div className="flex items-center justify-between gap-2 px-6 py-6">
           <div className="min-w-0 flex-1">
-            <TripSwitcher activeTrip={trip} trips={trips} />
+            {trip ? (
+              <TripSwitcher activeTrip={trip} trips={trips} />
+            ) : (
+              <div className="flex items-center gap-2 px-1 py-1">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-400">
+                  🧳
+                </span>
+                <p className="truncate text-sm font-semibold text-neutral-400">Sin viajes todavía</p>
+              </div>
+            )}
           </div>
           <Button
             size="icon-sm"
@@ -105,9 +133,11 @@ export function Sidebar({ weather, trip, trips }: { weather: WeatherInfo[]; trip
         <div className="flex items-center justify-between border-t border-neutral-100 px-6 py-4">
           <div>
             <p className="text-sm font-semibold text-neutral-900">Sergio</p>
-            {trip.travelers != null && (
+            {trip && (trip.travelers != null || dayCount > 0) && (
               <p className="text-xs text-neutral-400">
-                {trip.travelers} {trip.travelers === 1 ? "adulto" : "adultos"}
+                {trip.travelers != null && `${trip.travelers} ${trip.travelers === 1 ? "adulto" : "adultos"}`}
+                {trip.travelers != null && dayCount > 0 && " · "}
+                {dayCount > 0 && `${dayCount} ${dayCount === 1 ? "día" : "días"}`}
               </p>
             )}
           </div>

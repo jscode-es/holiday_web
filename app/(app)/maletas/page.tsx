@@ -2,10 +2,11 @@ import { getActiveTrip } from "@/lib/trips";
 import { getAllBagsWithItems } from "@/lib/queries/bags";
 import { BagCard } from "@/components/bags/bag-card";
 import { AddBagButton } from "@/components/bags/add-bag-button";
+import { EmptyTripsState } from "@/components/trips/empty-trips-state";
 
 export default async function MaletasPage() {
   const trip = await getActiveTrip();
-  if (!trip) return null;
+  if (!trip) return <EmptyTripsState />;
   const bags = await getAllBagsWithItems(trip.id);
   const totalItems = bags.reduce((acc, b) => acc + b.items.length, 0);
   const packedItems = bags.reduce((acc, b) => acc + b.items.filter((i) => i.packed).length, 0);

@@ -44,23 +44,35 @@ export async function POST(request: Request) {
 
   const backup = body;
 
-  db.transaction((tx) => {
-    tx.delete(activities).run();
-    tx.delete(bagItems).run();
-    tx.delete(days).run();
-    tx.delete(bags).run();
-    tx.delete(accommodations).run();
-    tx.delete(checklistItems).run();
-    tx.delete(trips).run();
+  try {
+    db.transaction((tx) => {
+      tx.delete(activities).run();
+      tx.delete(bagItems).run();
+      tx.delete(days).run();
+      tx.delete(bags).run();
+      tx.delete(accommodations).run();
+      tx.delete(checklistItems).run();
+      tx.delete(trips).run();
 
-    if (backup.trips.length) tx.insert(trips).values(backup.trips).run();
-    if (backup.days.length) tx.insert(days).values(backup.days).run();
-    if (backup.accommodations.length) tx.insert(accommodations).values(backup.accommodations).run();
-    if (backup.checklistItems.length) tx.insert(checklistItems).values(backup.checklistItems).run();
-    if (backup.bags.length) tx.insert(bags).values(backup.bags).run();
-    if (backup.activities.length) tx.insert(activities).values(backup.activities).run();
-    if (backup.bagItems.length) tx.insert(bagItems).values(backup.bagItems).run();
-  });
+      const tripsWithDates = backup.trips.map((t) => ({
+        ...t,
+        createdAt: t.createdAt ? new Date(t.createdAt) : undefined,
+      }));
+
+      if (tripsWithDates.length) tx.insert(trips).values(tripsWithDates).run();
+      if (backup.days.length) tx.insert(days).values(backup.days).run();
+      if (backup.accommodations.length) tx.insert(accommodations).values(backup.accommodations).run();
+      if (backup.checklistItems.length) tx.insert(checklistItems).values(backup.checklistItems).run();
+      if (backup.bags.length) tx.insert(bags).values(backup.bags).run();
+      if (backup.activities.length) tx.insert(activities).values(backup.activities).run();
+      if (backup.bagItems.length) tx.insert(bagItems).values(backup.bagItems).run();
+    });
+  } catch (e) {
+    return Response.json(
+      { error: e instanceof Error ? `Error al importar: ${e.message}` : "Error desconocido al importar." },
+      { status: 500 }
+    );
+  }
 
   return Response.json({
     ok: true,

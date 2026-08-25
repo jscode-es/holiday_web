@@ -10,7 +10,7 @@ export function EmptyTripsState() {
   const [creating, setCreating] = useState(false);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4 bg-white px-4 text-center">
+    <div className="flex h-full flex-col items-center justify-center gap-4 bg-white px-4 text-center">
       <span className="flex size-14 items-center justify-center rounded-full bg-neutral-100 text-neutral-400">
         <Plane className="size-6" />
       </span>

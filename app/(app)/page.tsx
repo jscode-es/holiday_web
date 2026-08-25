@@ -8,10 +8,11 @@ import { ItineraryPanel } from "@/components/dashboard/itinerary-panel";
 import { Gallery } from "@/components/dashboard/gallery";
 import { MapLoader } from "@/components/map/map-loader";
 import { AddDayButton } from "@/components/days/add-day-button";
+import { EmptyTripsState } from "@/components/trips/empty-trips-state";
 
 export default async function Home() {
   const trip = await getActiveTrip();
-  if (!trip) return null;
+  if (!trip) return <EmptyTripsState />;
 
   const [days, accommodations, summary, markers, routes] = await Promise.all([
     getAllDaysWithActivities(trip.id),
@@ -45,6 +46,7 @@ export default async function Home() {
           </h1>
           <p className="text-sm text-neutral-400">{dateRange}</p>
         </div>
+        {days.length > 0 && <AddDayButton tripId={trip.id} nextDayNumber={days.length + 1} />}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -9,15 +9,29 @@ import { ACTIVE_TRIP_COOKIE } from "@/lib/trips";
 
 export async function createTrip(input: { name: string; emoji: string | null }) {
   assertMutable();
-  const row = db.insert(trips).values({ name: input.name, emoji: input.emoji }).returning().get();
+  const name = input.name.trim();
+  if (!name) throw new Error("El nombre del viaje no puede estar vacío.");
+  const row = db.insert(trips).values({ name, emoji: input.emoji }).returning().get();
   const cookieStore = await cookies();
-  cookieStore.set(ACTIVE_TRIP_COOKIE, String(row.id), { httpOnly: true, sameSite: "lax", path: "/" });
+  cookieStore.set(ACTIVE_TRIP_COOKIE, String(row.id), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    secure: process.env.NODE_ENV === "production",
+  });
   revalidatePath("/", "layout");
   return row;
 }
 
 export async function setActiveTrip(tripId: number) {
   const cookieStore = await cookies();
-  cookieStore.set(ACTIVE_TRIP_COOKIE, String(tripId), { httpOnly: true, sameSite: "lax", path: "/" });
+  cookieStore.set(ACTIVE_TRIP_COOKIE, String(tripId), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    secure: process.env.NODE_ENV === "production",
+  });
   revalidatePath("/", "layout");
 }
