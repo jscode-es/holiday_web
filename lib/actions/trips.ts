@@ -90,6 +90,14 @@ export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>
   return row;
 }
 
+export async function deleteTrip(tripId: number) {
+  assertMutable();
+  db.delete(trips).where(eq(trips.id, tripId)).run();
+  const cookieStore = await cookies();
+  cookieStore.delete(ACTIVE_TRIP_COOKIE);
+  revalidatePath("/", "layout");
+}
+
 export async function setActiveTrip(tripId: number) {
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(tripId), {

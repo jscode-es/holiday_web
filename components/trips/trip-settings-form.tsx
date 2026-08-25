@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { updateTrip } from "@/lib/actions/trips";
+import { updateTrip, deleteTrip } from "@/lib/actions/trips";
 import { isReadOnly } from "@/lib/env";
 import type { Trip } from "@/lib/queries/trips";
 import type { Day } from "@/lib/queries/days";
@@ -25,6 +26,13 @@ export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
   const [saved, setSaved] = useState(false);
   const [pending, setPending] = useState<PendingUpdate | null>(null);
   const [daysToRemove, setDaysToRemove] = useState<Day[]>([]);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  async function handleDelete() {
+    await deleteTrip(trip.id);
+    router.push("/");
+    router.refresh();
+  }
 
   async function commit(update: PendingUpdate) {
     setSaving(true);
@@ -128,6 +136,25 @@ export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
           </div>
         )}
       </form>
+
+      {!isReadOnly && (
+        <div className="mt-6 border-t border-neutral-100 pt-4">
+          <p className="mb-2 text-xs font-semibold tracking-wide text-neutral-400 uppercase">Zona de peligro</p>
+          <Button variant="destructive" className="rounded-full" onClick={() => setConfirmingDelete(true)}>
+            <Trash2 className="size-4" />
+            Eliminar viaje
+          </Button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`¿Eliminar "${trip.name}"?`}
+        description="Se borrarán también todos sus días, actividades, alojamientos, checklist y maletas. Esta acción no se puede deshacer."
+        confirmLabel="Eliminar viaje"
+        onConfirm={handleDelete}
+      />
 
       <ConfirmDialog
         open={pending != null}
