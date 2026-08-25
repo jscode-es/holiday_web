@@ -8,12 +8,12 @@ import { assertMutable } from "@/lib/env";
 
 export async function toggleChecklistItem(id: number, done: boolean) {
   assertMutable();
-  db.update(checklistItems).set({ done }).where(eq(checklistItems.id, id)).run();
+  await db.update(checklistItems).set({ done }).where(eq(checklistItems.id, id)).run();
   revalidatePath("/presupuesto");
 }
 
 export async function createChecklistItem(tripId: number, label: string) {
   assertMutable();
-  db.insert(checklistItems).values({ tripId, label, done: false }).run();
+  await db.insert(checklistItems).values({ tripId, label, done: false }).run();
   revalidatePath("/presupuesto");
 }

@@ -11,7 +11,7 @@ async function main() {
   const [existingTrip] = await db.select().from(trips).limit(1);
   const trip =
     existingTrip ??
-    db
+    (await db
       .insert(trips)
       .values({
         name: "Japón 2026",
@@ -21,16 +21,16 @@ async function main() {
         travelers: 2,
       })
       .returning()
-      .get();
+      .get());
 
-  db.delete(activities).run();
-  db.delete(days).run();
-  db.delete(accommodations).run();
-  db.delete(checklistItems).run();
+  await db.delete(activities).run();
+  await db.delete(days).run();
+  await db.delete(accommodations).run();
+  await db.delete(checklistItems).run();
 
   const dayIdByNumber = new Map<number, number>();
   for (const day of daySeeds) {
-    const row = db.insert(days).values({ ...day, tripId: trip.id }).returning().get();
+    const row = await db.insert(days).values({ ...day, tripId: trip.id }).returning().get();
     dayIdByNumber.set(day.dayNumber, row.id);
   }
 
@@ -39,15 +39,15 @@ async function main() {
     if (!dayId) throw new Error(`No day found for dayNumber ${activity.dayNumber}`);
     const { dayNumber, ...rest } = activity;
     void dayNumber;
-    db.insert(activities).values({ ...rest, dayId }).run();
+    await db.insert(activities).values({ ...rest, dayId }).run();
   }
 
   for (const accommodation of accommodationSeeds) {
-    db.insert(accommodations).values({ ...accommodation, tripId: trip.id }).run();
+    await db.insert(accommodations).values({ ...accommodation, tripId: trip.id }).run();
   }
 
   for (const label of checklistSeeds) {
-    db.insert(checklistItems).values({ label, done: false, tripId: trip.id }).run();
+    await db.insert(checklistItems).values({ label, done: false, tripId: trip.id }).run();
   }
 
   console.log(

@@ -39,20 +39,20 @@ function revalidateActivityPaths() {
 
 export async function createActivity(input: ActivityInput) {
   assertMutable();
-  const row = db.insert(activities).values(input).returning().get();
+  const row = await db.insert(activities).values(input).returning().get();
   revalidateActivityPaths();
   return row;
 }
 
 export async function updateActivity(id: number, input: Partial<ActivityInput>) {
   assertMutable();
-  const row = db.update(activities).set(input).where(eq(activities.id, id)).returning().get();
+  const row = await db.update(activities).set(input).where(eq(activities.id, id)).returning().get();
   revalidateActivityPaths();
   return row;
 }
 
 export async function deleteActivity(id: number) {
   assertMutable();
-  db.delete(activities).where(eq(activities.id, id)).run();
+  await db.delete(activities).where(eq(activities.id, id)).run();
   revalidateActivityPaths();
 }

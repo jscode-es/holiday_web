@@ -27,6 +27,32 @@ function isBackup(value: unknown): value is Backup {
   );
 }
 
+// Shared with both the Turso (transactional) and local better-sqlite3
+// (sequential, see below) paths — `executor` is either `db` itself or a
+// transaction handle, both expose the same insert/delete builder API.
+async function applyBackup(executor: typeof db, backup: Backup) {
+  await executor.delete(activities).run();
+  await executor.delete(bagItems).run();
+  await executor.delete(days).run();
+  await executor.delete(bags).run();
+  await executor.delete(accommodations).run();
+  await executor.delete(checklistItems).run();
+  await executor.delete(trips).run();
+
+  const tripsWithDates = backup.trips.map((t) => ({
+    ...t,
+    createdAt: t.createdAt ? new Date(t.createdAt) : undefined,
+  }));
+
+  if (tripsWithDates.length) await executor.insert(trips).values(tripsWithDates).run();
+  if (backup.days.length) await executor.insert(days).values(backup.days).run();
+  if (backup.accommodations.length) await executor.insert(accommodations).values(backup.accommodations).run();
+  if (backup.checklistItems.length) await executor.insert(checklistItems).values(backup.checklistItems).run();
+  if (backup.bags.length) await executor.insert(bags).values(backup.bags).run();
+  if (backup.activities.length) await executor.insert(activities).values(backup.activities).run();
+  if (backup.bagItems.length) await executor.insert(bagItems).values(backup.bagItems).run();
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -45,28 +71,16 @@ export async function POST(request: Request) {
   const backup = body;
 
   try {
-    db.transaction((tx) => {
-      tx.delete(activities).run();
-      tx.delete(bagItems).run();
-      tx.delete(days).run();
-      tx.delete(bags).run();
-      tx.delete(accommodations).run();
-      tx.delete(checklistItems).run();
-      tx.delete(trips).run();
-
-      const tripsWithDates = backup.trips.map((t) => ({
-        ...t,
-        createdAt: t.createdAt ? new Date(t.createdAt) : undefined,
-      }));
-
-      if (tripsWithDates.length) tx.insert(trips).values(tripsWithDates).run();
-      if (backup.days.length) tx.insert(days).values(backup.days).run();
-      if (backup.accommodations.length) tx.insert(accommodations).values(backup.accommodations).run();
-      if (backup.checklistItems.length) tx.insert(checklistItems).values(backup.checklistItems).run();
-      if (backup.bags.length) tx.insert(bags).values(backup.bags).run();
-      if (backup.activities.length) tx.insert(activities).values(backup.activities).run();
-      if (backup.bagItems.length) tx.insert(bagItems).values(backup.bagItems).run();
-    });
+    if (process.env.TURSO_DATABASE_URL) {
+      // Turso's libsql driver supports real async interactive transactions.
+      // The better-sqlite3 driver's `.transaction()` requires a synchronous
+      // callback (incompatible with the awaited calls in applyBackup), so it
+      // isn't used here — this branch only runs when Turso is configured.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (db as any).transaction((tx: typeof db) => applyBackup(tx, backup));
+    } else {
+      await applyBackup(db, backup);
+    }
   } catch (e) {
     return Response.json(
       { error: e instanceof Error ? `Error al importar: ${e.message}` : "Error desconocido al importar." },

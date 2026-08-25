@@ -25,30 +25,30 @@ async function syncDaysToRange(tripId: number, startDate: string, endDate: strin
 
   for (const day of existing) {
     if (!rangeSet.has(day.date)) {
-      db.delete(days).where(eq(days.id, day.id)).run();
+      await db.delete(days).where(eq(days.id, day.id)).run();
     }
   }
 
   for (const date of rangeDates) {
     if (!existingDates.has(date)) {
-      db.insert(days).values({ tripId, date, dayNumber: 0, title: "Día sin planificar" }).run();
+      await db.insert(days).values({ tripId, date, dayNumber: 0, title: "Día sin planificar" }).run();
     }
   }
 
   const remaining = await db.select().from(days).where(eq(days.tripId, tripId)).orderBy(asc(days.date));
-  remaining.forEach((day, index) => {
+  for (const [index, day] of remaining.entries()) {
     const dayNumber = index + 1;
     if (day.dayNumber !== dayNumber) {
-      db.update(days).set({ dayNumber }).where(eq(days.id, day.id)).run();
+      await db.update(days).set({ dayNumber }).where(eq(days.id, day.id)).run();
     }
-  });
+  }
 }
 
 export async function createTrip(input: { name: string; emoji: string | null }) {
   assertMutable();
   const name = input.name.trim();
   if (!name) throw new Error("El nombre del viaje no puede estar vacío.");
-  const row = db.insert(trips).values({ name, emoji: input.emoji }).returning().get();
+  const row = await db.insert(trips).values({ name, emoji: input.emoji }).returning().get();
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(row.id), {
     httpOnly: true,
@@ -80,7 +80,7 @@ export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>
   if (fields.startDate && fields.endDate && fields.startDate > fields.endDate) {
     throw new Error("La fecha de inicio no puede ser posterior a la fecha de fin.");
   }
-  const row = db.update(trips).set(fields).where(eq(trips.id, tripId)).returning().get();
+  const row = await db.update(trips).set(fields).where(eq(trips.id, tripId)).returning().get();
   if (row.startDate && row.endDate) {
     await syncDaysToRange(tripId, row.startDate, row.endDate);
   }
@@ -92,7 +92,7 @@ export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>
 
 export async function deleteTrip(tripId: number) {
   assertMutable();
-  db.delete(trips).where(eq(trips.id, tripId)).run();
+  await db.delete(trips).where(eq(trips.id, tripId)).run();
   const cookieStore = await cookies();
   cookieStore.delete(ACTIVE_TRIP_COOKIE);
   revalidatePath("/", "layout");

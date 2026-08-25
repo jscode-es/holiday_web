@@ -15,7 +15,7 @@ export type DayInput = {
 
 export async function updateDay(id: number, input: Partial<DayInput>) {
   assertMutable();
-  const row = db.update(days).set(input).where(eq(days.id, id)).returning().get();
+  const row = await db.update(days).set(input).where(eq(days.id, id)).returning().get();
   revalidatePath("/");
   revalidatePath("/calendario");
   revalidatePath("/itinerario");

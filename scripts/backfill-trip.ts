@@ -6,7 +6,7 @@ async function main() {
   const [existingTrip] = await db.select().from(trips).limit(1);
   const trip =
     existingTrip ??
-    db
+    (await db
       .insert(trips)
       .values({
         name: "Japón 2026",
@@ -16,12 +16,12 @@ async function main() {
         travelers: 2,
       })
       .returning()
-      .get();
+      .get());
 
-  db.update(days).set({ tripId: trip.id }).where(isNull(days.tripId)).run();
-  db.update(accommodations).set({ tripId: trip.id }).where(isNull(accommodations.tripId)).run();
-  db.update(checklistItems).set({ tripId: trip.id }).where(isNull(checklistItems.tripId)).run();
-  db.update(bags).set({ tripId: trip.id }).where(isNull(bags.tripId)).run();
+  await db.update(days).set({ tripId: trip.id }).where(isNull(days.tripId)).run();
+  await db.update(accommodations).set({ tripId: trip.id }).where(isNull(accommodations.tripId)).run();
+  await db.update(checklistItems).set({ tripId: trip.id }).where(isNull(checklistItems.tripId)).run();
+  await db.update(bags).set({ tripId: trip.id }).where(isNull(bags.tripId)).run();
 
   const remaining = {
     days: (await db.select().from(days).where(isNull(days.tripId))).length,
