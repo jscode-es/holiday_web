@@ -7,8 +7,10 @@ import { LayoutDashboard, CalendarDays, ListChecks, Map, Luggage, Wallet, Settin
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { WeatherCard } from "@/components/weather-dialog";
+import { TripSwitcher } from "@/components/trips/trip-switcher";
 import { isReadOnly } from "@/lib/env";
 import type { WeatherInfo } from "@/lib/weather";
+import type { Trip } from "@/lib/queries/trips";
 
 const links = [
   { href: "/", label: "Resumen", icon: LayoutDashboard },
@@ -19,7 +21,7 @@ const links = [
   { href: "/presupuesto", label: "Presupuesto", icon: Wallet },
 ];
 
-export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
+export function Sidebar({ weather, trip, trips }: { weather: WeatherInfo[]; trip: Trip; trips: Trip[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -31,12 +33,9 @@ export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
 
   return (
     <>
-      <header className="flex shrink-0 items-center justify-between border-b border-neutral-100 bg-white px-4 py-3 md:hidden">
-        <div className="flex items-center gap-2">
-          <span className="flex size-7 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
-            田
-          </span>
-          <p className="text-sm font-bold tracking-tight text-neutral-900">JAPÓN 2026</p>
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-100 bg-white px-4 py-3 md:hidden">
+        <div className="min-w-0 flex-1">
+          <TripSwitcher activeTrip={trip} trips={trips} />
         </div>
         <Button size="icon-sm" variant="ghost" onClick={() => setOpen(true)} aria-label="Abrir menú">
           <Menu className="size-5" />
@@ -59,14 +58,8 @@ export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
         )}
       >
         <div className="flex items-center justify-between gap-2 px-6 py-6">
-          <div className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
-              田
-            </span>
-            <div>
-              <p className="text-sm font-bold tracking-tight text-neutral-900">JAPÓN 2026</p>
-              <p className="text-xs text-neutral-400">27 sep — 16 oct</p>
-            </div>
+          <div className="min-w-0 flex-1">
+            <TripSwitcher activeTrip={trip} trips={trips} />
           </div>
           <Button
             size="icon-sm"
@@ -112,7 +105,11 @@ export function Sidebar({ weather }: { weather: WeatherInfo[] }) {
         <div className="flex items-center justify-between border-t border-neutral-100 px-6 py-4">
           <div>
             <p className="text-sm font-semibold text-neutral-900">Sergio</p>
-            <p className="text-xs text-neutral-400">2 adultos · 20 días</p>
+            {trip.travelers != null && (
+              <p className="text-xs text-neutral-400">
+                {trip.travelers} {trip.travelers === 1 ? "adulto" : "adultos"}
+              </p>
+            )}
           </div>
           <Link
             href="/ajustes"
