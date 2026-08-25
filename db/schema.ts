@@ -8,6 +8,8 @@ export const trips = sqliteTable("trips", {
   startDate: text("start_date"),
   endDate: text("end_date"),
   travelers: integer("travelers"),
+  displayCurrency: text("display_currency", { enum: ["EUR", "JPY"] }),
+  eurToJpyRate: real("eur_to_jpy_rate"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),

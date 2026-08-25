@@ -6,26 +6,41 @@ import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig } from "@/lib/activity-type";
 import { youtubeEmbedUrl } from "@/lib/youtube";
 import { findAccommodationByName } from "@/lib/actions/accommodations";
+import { convertToDisplay, formatCurrency, type Currency } from "@/lib/currency";
 import type { Activity } from "@/lib/queries/days";
 import type { Accommodation } from "@/lib/queries/accommodations";
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+export type CurrencyDisplay = { displayCurrency: Currency | null; eurToJpyRate: number | null };
+
+function DetailRow({ label, value, title }: { label: string; value: string; title?: string }) {
   return (
     <div className="flex justify-between gap-4 border-b border-neutral-100 py-2 text-sm last:border-0">
       <span className="text-neutral-400">{label}</span>
-      <span className="font-medium text-neutral-900">{value}</span>
+      <span className="font-medium text-neutral-900" title={title}>
+        {value}
+      </span>
     </div>
   );
+}
+
+function costDisplay(cost: number, currency: Currency, currencyDisplay?: CurrencyDisplay) {
+  const converted = currencyDisplay
+    ? convertToDisplay(cost, currency, currencyDisplay.displayCurrency, currencyDisplay.eurToJpyRate)
+    : null;
+  if (converted == null) return { value: `${cost} ${currency}`, title: undefined };
+  return { value: formatCurrency(converted, currencyDisplay!.displayCurrency!), title: `Original: ${cost} ${currency}` };
 }
 
 export function ActivityDetailDialog({
   activity,
   open,
   onOpenChange,
+  currencyDisplay,
 }: {
   activity: Activity;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  currencyDisplay?: CurrencyDisplay;
 }) {
   const config = typeConfig[activity.type];
   const embedUrl = activity.videoUrl ? youtubeEmbedUrl(activity.videoUrl) : null;
@@ -74,13 +89,15 @@ export function ActivityDetailDialog({
           {activity.origin && <DetailRow label="Origen" value={activity.origin} />}
           {activity.destination && <DetailRow label="Destino" value={activity.destination} />}
           {activity.durationMin != null && <DetailRow label="Duración" value={`${activity.durationMin} min`} />}
-          {activity.cost != null && <DetailRow label="Coste" value={`${activity.cost} ${activity.currency ?? ""}`} />}
+          {activity.cost != null && activity.currency && (
+            <DetailRow label="Coste" {...costDisplay(activity.cost, activity.currency, currencyDisplay)} />
+          )}
           {accommodation && (
             <>
               <DetailRow label="Entrada" value={accommodation.checkIn} />
               <DetailRow label="Salida" value={accommodation.checkOut} />
-              {accommodation.cost != null && (
-                <DetailRow label="Coste" value={`${accommodation.cost} ${accommodation.currency ?? ""}`} />
+              {accommodation.cost != null && accommodation.currency && (
+                <DetailRow label="Coste" {...costDisplay(accommodation.cost, accommodation.currency, currencyDisplay)} />
               )}
             </>
           )}

@@ -67,6 +67,8 @@ export type TripUpdateInput = {
   startDate: string | null;
   endDate: string | null;
   travelers: number | null;
+  displayCurrency: "EUR" | "JPY" | null;
+  eurToJpyRate: number | null;
 };
 
 export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>) {

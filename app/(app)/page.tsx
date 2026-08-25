@@ -8,11 +8,13 @@ import { ItineraryPanel } from "@/components/dashboard/itinerary-panel";
 import { Gallery } from "@/components/dashboard/gallery";
 import { MapLoader } from "@/components/map/map-loader";
 import { EmptyTripsState } from "@/components/trips/empty-trips-state";
+import { convertToDisplay, formatCurrency } from "@/lib/currency";
 import Link from "next/link";
 
 export default async function Home() {
   const trip = await getActiveTrip();
   if (!trip) return <EmptyTripsState />;
+  const currencyDisplay = { displayCurrency: trip.displayCurrency, eurToJpyRate: trip.eurToJpyRate };
 
   const [days, accommodations, summary, markers, routes] = await Promise.all([
     getAllDaysWithActivities(trip.id),
@@ -21,6 +23,12 @@ export default async function Home() {
     getMapMarkers(trip.id),
     getMapRoutes(trip.id),
   ]);
+
+  const convertedTotal =
+    trip.displayCurrency && trip.eurToJpyRate
+      ? (convertToDisplay(summary.registeredEUR, "EUR", trip.displayCurrency, trip.eurToJpyRate) ?? 0) +
+        (convertToDisplay(summary.registeredJPY, "JPY", trip.displayCurrency, trip.eurToJpyRate) ?? 0)
+      : null;
 
   const allStatuses = [
     ...days.flatMap((d) => d.activities.map((a) => a.status)),
@@ -51,6 +59,13 @@ export default async function Home() {
         <StatCard label="Registrado (JPY)" value={`¥${summary.registeredJPY.toFixed(0)}`} hint="Extras" />
         <StatCard label="Preparación del viaje" value={`${readiness}%`} hint="Confirmado o programado" />
         <StatCard label="Elementos pendientes" value={String(summary.pendingCount)} hint="Alojamientos y entradas" />
+        {convertedTotal != null && (
+          <StatCard
+            label={`Registrado (${trip.displayCurrency})`}
+            value={formatCurrency(convertedTotal, trip.displayCurrency!)}
+            hint="Total convertido, todo junto"
+          />
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -66,7 +81,7 @@ export default async function Home() {
               </p>
             </div>
           ) : (
-            <ItineraryPanel days={days} />
+            <ItineraryPanel days={days} currencyDisplay={currencyDisplay} />
           )}
         </div>
 

@@ -15,6 +15,7 @@ export default async function CalendarioPage({
   const days = await getAllDaysWithActivities(trip.id);
   const { day } = await searchParams;
   const selectedDay = day ? days.find((d) => d.id === Number(day)) : undefined;
+  const currencyDisplay = { displayCurrency: trip.displayCurrency, eurToJpyRate: trip.eurToJpyRate };
 
   return (
     <div className="space-y-8 px-4 py-6 sm:px-6 md:px-8 md:py-8">
@@ -35,7 +36,7 @@ export default async function CalendarioPage({
       ) : (
         <MonthGrid days={days} />
       )}
-      <DaySheet day={selectedDay} />
+      <DaySheet day={selectedDay} currencyDisplay={currencyDisplay} />
     </div>
   );
 }

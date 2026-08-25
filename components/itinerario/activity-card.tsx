@@ -8,14 +8,21 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ActivityForm } from "@/components/calendar/activity-form";
-import { ActivityDetailDialog } from "@/components/shared/activity-detail-dialog";
+import { ActivityDetailDialog, type CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
 import { deleteActivity } from "@/lib/actions/activities";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig, statusStyle } from "@/lib/activity-type";
+import { convertToDisplay, formatCurrency } from "@/lib/currency";
 import { isReadOnly } from "@/lib/env";
 import type { Activity } from "@/lib/queries/days";
 
-export function ActivityCard({ activity }: { activity: Activity }) {
+export function ActivityCard({
+  activity,
+  currencyDisplay,
+}: {
+  activity: Activity;
+  currencyDisplay?: CurrencyDisplay;
+}) {
   const router = useRouter();
   const [view, setView] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -24,6 +31,11 @@ export function ActivityCard({ activity }: { activity: Activity }) {
   const isLongHaul = activity.type === "transport" && (activity.durationMin ?? 0) >= 360;
   const config = typeConfig[activity.type];
   const Icon = isLongHaul ? Plane : config.icon;
+
+  const convertedCost =
+    activity.cost != null && activity.currency && currencyDisplay
+      ? convertToDisplay(activity.cost, activity.currency, currencyDisplay.displayCurrency, currencyDisplay.eurToJpyRate)
+      : null;
 
   async function handleDelete() {
     await deleteActivity(activity.id);
@@ -68,8 +80,13 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
       <div className="mt-auto flex items-center justify-between pt-1">
         {activity.cost != null ? (
-          <span className="text-xs font-medium text-neutral-400">
-            {activity.cost} {activity.currency}
+          <span
+            className="text-xs font-medium text-neutral-400"
+            title={convertedCost != null ? `Original: ${activity.cost} ${activity.currency}` : undefined}
+          >
+            {convertedCost != null
+              ? formatCurrency(convertedCost, currencyDisplay!.displayCurrency!)
+              : `${activity.cost} ${activity.currency}`}
           </span>
         ) : (
           <span />
@@ -98,7 +115,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
         onConfirm={handleDelete}
       />
 
-      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} />
+      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} currencyDisplay={currencyDisplay} />
 
       <Dialog open={editing} onOpenChange={setEditing}>
         <DialogContent className="sm:max-w-lg">

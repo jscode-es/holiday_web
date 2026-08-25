@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { updateTrip, deleteTrip } from "@/lib/actions/trips";
 import { isReadOnly } from "@/lib/env";
 import type { Trip } from "@/lib/queries/trips";
 import type { Day } from "@/lib/queries/days";
+import type { Currency } from "@/lib/currency";
 
 type PendingUpdate = {
   name: string;
@@ -18,6 +20,8 @@ type PendingUpdate = {
   startDate: string | null;
   endDate: string | null;
   travelers: number | null;
+  displayCurrency: Currency | null;
+  eurToJpyRate: number | null;
 };
 
 export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
@@ -27,6 +31,7 @@ export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
   const [pending, setPending] = useState<PendingUpdate | null>(null);
   const [daysToRemove, setDaysToRemove] = useState<Day[]>([]);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [displayCurrency, setDisplayCurrency] = useState<Currency | "none">(trip.displayCurrency ?? "none");
 
   async function handleDelete() {
     await deleteTrip(trip.id);
@@ -49,6 +54,7 @@ export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
     const travelersRaw = formData.get("travelers") as string;
     const startDate = (formData.get("startDate") as string) || null;
     const endDate = (formData.get("endDate") as string) || null;
+    const rateRaw = formData.get("eurToJpyRate") as string;
 
     const update: PendingUpdate = {
       name: formData.get("name") as string,
@@ -56,6 +62,8 @@ export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
       startDate,
       endDate,
       travelers: travelersRaw ? Number(travelersRaw) : null,
+      displayCurrency: displayCurrency === "none" ? null : displayCurrency,
+      eurToJpyRate: displayCurrency !== "none" && rateRaw ? Number(rateRaw) : null,
     };
 
     if (startDate && endDate) {
@@ -125,6 +133,41 @@ export function TripSettingsForm({ trip, days }: { trip: Trip; days: Day[] }) {
             className="max-w-32"
             disabled={isReadOnly}
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="trip-settings-display-currency">Ver precios siempre en</Label>
+            <Select
+              value={displayCurrency}
+              onValueChange={(v) => setDisplayCurrency(v as Currency | "none")}
+              disabled={isReadOnly}
+            >
+              <SelectTrigger id="trip-settings-display-currency">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sin conversión</SelectItem>
+                <SelectItem value="EUR">Euros (€)</SelectItem>
+                <SelectItem value="JPY">Yenes (¥)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {displayCurrency !== "none" && (
+            <div className="space-y-2">
+              <Label htmlFor="trip-settings-rate">1 EUR = X JPY</Label>
+              <Input
+                id="trip-settings-rate"
+                name="eurToJpyRate"
+                type="number"
+                step="any"
+                min={0}
+                defaultValue={trip.eurToJpyRate ?? ""}
+                placeholder="p. ej. 160"
+                disabled={isReadOnly}
+              />
+            </div>
+          )}
         </div>
 
         {!isReadOnly && (

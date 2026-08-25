@@ -10,8 +10,15 @@ import { ActivityForm } from "@/components/calendar/activity-form";
 import { DayForm } from "@/components/itinerario/day-form";
 import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
+import type { CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
 
-export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
+export function ItineraryPanel({
+  days,
+  currencyDisplay,
+}: {
+  days: DayWithActivities[];
+  currencyDisplay?: CurrencyDisplay;
+}) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [editing, setEditing] = useState<Activity | "new" | null>(null);
@@ -103,7 +110,7 @@ export function ItineraryPanel({ days }: { days: DayWithActivities[] }) {
                 <p className="py-6 text-center text-sm text-neutral-400">Sin actividades este día todavía.</p>
               ) : (
                 day.activities.map((activity) => (
-                  <ActivityItem key={activity.id} activity={activity} onEdit={setEditing} />
+                  <ActivityItem key={activity.id} activity={activity} onEdit={setEditing} currencyDisplay={currencyDisplay} />
                 ))
               )}
             </div>

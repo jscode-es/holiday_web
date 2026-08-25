@@ -12,8 +12,9 @@ import { ActivityCard } from "./activity-card";
 import { DayForm } from "./day-form";
 import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities } from "@/lib/queries/days";
+import type { CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
 
-export function DayTabs({ days }: { days: DayWithActivities[] }) {
+export function DayTabs({ days, currencyDisplay }: { days: DayWithActivities[]; currencyDisplay?: CurrencyDisplay }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [adding, setAdding] = useState(false);
@@ -95,7 +96,7 @@ export function DayTabs({ days }: { days: DayWithActivities[] }) {
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {day.activities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} />
+                <ActivityCard key={activity.id} activity={activity} currencyDisplay={currencyDisplay} />
               ))}
             </div>
           )}

@@ -7,12 +7,20 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig, statusStyle } from "@/lib/activity-type";
-import { ActivityDetailDialog } from "@/components/shared/activity-detail-dialog";
+import { ActivityDetailDialog, type CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
 import { isReadOnly } from "@/lib/env";
 import type { Activity } from "@/lib/queries/days";
 import { deleteActivity } from "@/lib/actions/activities";
 
-export function ActivityItem({ activity, onEdit }: { activity: Activity; onEdit: (activity: Activity) => void }) {
+export function ActivityItem({
+  activity,
+  onEdit,
+  currencyDisplay,
+}: {
+  activity: Activity;
+  onEdit: (activity: Activity) => void;
+  currencyDisplay?: CurrencyDisplay;
+}) {
   const router = useRouter();
   const [view, setView] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -67,7 +75,7 @@ export function ActivityItem({ activity, onEdit }: { activity: Activity; onEdit:
         onConfirm={handleDelete}
       />
 
-      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} />
+      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} currencyDisplay={currencyDisplay} />
     </div>
   );
 }

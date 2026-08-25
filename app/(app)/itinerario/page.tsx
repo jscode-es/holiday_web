@@ -8,6 +8,7 @@ export default async function ItinerarioPage() {
   const trip = await getActiveTrip();
   if (!trip) return <EmptyTripsState />;
   const days = await getAllDaysWithActivities(trip.id);
+  const currencyDisplay = { displayCurrency: trip.displayCurrency, eurToJpyRate: trip.eurToJpyRate };
 
   return (
     <div className="space-y-8 px-4 py-6 sm:px-6 md:px-8 md:py-8">
@@ -26,7 +27,7 @@ export default async function ItinerarioPage() {
           </p>
         </div>
       ) : (
-        <DayTabs days={days} />
+        <DayTabs days={days} currencyDisplay={currencyDisplay} />
       )}
     </div>
   );

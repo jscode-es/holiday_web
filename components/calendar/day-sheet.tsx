@@ -14,8 +14,15 @@ import { ActivityItem } from "./activity-item";
 import { ActivityForm } from "./activity-form";
 import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
+import type { CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
 
-export function DaySheet({ day }: { day: DayWithActivities | undefined }) {
+export function DaySheet({
+  day,
+  currencyDisplay,
+}: {
+  day: DayWithActivities | undefined;
+  currencyDisplay?: CurrencyDisplay;
+}) {
   const router = useRouter();
   const [editing, setEditing] = useState<Activity | "new" | null>(null);
 
@@ -58,7 +65,12 @@ export function DaySheet({ day }: { day: DayWithActivities | undefined }) {
                   )}
                   <ScrollArea className="h-[60vh]">
                     {day.activities.map((activity) => (
-                      <ActivityItem key={activity.id} activity={activity} onEdit={setEditing} />
+                      <ActivityItem
+                        key={activity.id}
+                        activity={activity}
+                        onEdit={setEditing}
+                        currencyDisplay={currencyDisplay}
+                      />
                     ))}
                   </ScrollArea>
                 </>
