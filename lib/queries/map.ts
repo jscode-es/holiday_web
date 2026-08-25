@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { activities, accommodations } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { activities, accommodations, days } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 export type MapMarker = { id: string; title: string; lat: number; lng: number; kind: "place" | "hotel" | "via" };
 export type MapRoute = {
@@ -13,18 +13,30 @@ export type MapRoute = {
   via?: { label: string | null; lat: number; lng: number };
 };
 
-export async function getMapMarkers(): Promise<MapMarker[]> {
-  const placeRows = await db.select().from(activities).where(eq(activities.type, "place"));
+export async function getMapMarkers(tripId: number): Promise<MapMarker[]> {
+  const placeRows = (
+    await db
+      .select()
+      .from(activities)
+      .innerJoin(days, eq(activities.dayId, days.id))
+      .where(and(eq(days.tripId, tripId), eq(activities.type, "place")))
+  ).map((r) => r.activities);
   const places: MapMarker[] = placeRows
     .filter((a): a is typeof a & { destLat: number; destLng: number } => a.destLat != null && a.destLng != null)
     .map((a) => ({ id: `place-${a.id}`, title: a.title, lat: a.destLat, lng: a.destLng, kind: "place" as const }));
 
-  const stayRows = await db.select().from(accommodations);
+  const stayRows = await db.select().from(accommodations).where(eq(accommodations.tripId, tripId));
   const stays: MapMarker[] = stayRows
     .filter((s): s is typeof s & { lat: number; lng: number } => s.lat != null && s.lng != null)
     .map((s) => ({ id: `hotel-${s.id}`, title: s.name, lat: s.lat, lng: s.lng, kind: "hotel" as const }));
 
-  const transportRows = await db.select().from(activities).where(eq(activities.type, "transport"));
+  const transportRows = (
+    await db
+      .select()
+      .from(activities)
+      .innerJoin(days, eq(activities.dayId, days.id))
+      .where(and(eq(days.tripId, tripId), eq(activities.type, "transport")))
+  ).map((r) => r.activities);
   const viaByKey = new Map<string, MapMarker>();
   for (const a of transportRows) {
     if (a.viaLat == null || a.viaLng == null) continue;
@@ -43,8 +55,14 @@ export async function getMapMarkers(): Promise<MapMarker[]> {
   return [...places, ...stays, ...viaByKey.values()];
 }
 
-export async function getMapRoutes(): Promise<MapRoute[]> {
-  const rows = await db.select().from(activities).where(eq(activities.type, "transport"));
+export async function getMapRoutes(tripId: number): Promise<MapRoute[]> {
+  const rows = (
+    await db
+      .select()
+      .from(activities)
+      .innerJoin(days, eq(activities.dayId, days.id))
+      .where(and(eq(days.tripId, tripId), eq(activities.type, "transport")))
+  ).map((r) => r.activities);
   return rows
     .filter(
       (a): a is typeof a & { originLat: number; originLng: number; destLat: number; destLng: number } =>

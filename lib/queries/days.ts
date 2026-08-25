@@ -1,13 +1,13 @@
 import { db } from "@/db";
 import { days, activities } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, inArray } from "drizzle-orm";
 
 export type Day = typeof days.$inferSelect;
 export type Activity = typeof activities.$inferSelect;
 export type DayWithActivities = Day & { activities: Activity[] };
 
-export async function getAllDays(): Promise<Day[]> {
-  return db.select().from(days).orderBy(asc(days.dayNumber));
+export async function getAllDays(tripId: number): Promise<Day[]> {
+  return db.select().from(days).where(eq(days.tripId, tripId)).orderBy(asc(days.dayNumber));
 }
 
 export async function getDayWithActivities(dayId: number): Promise<DayWithActivities | undefined> {
@@ -21,9 +21,15 @@ export async function getDayWithActivities(dayId: number): Promise<DayWithActivi
   return { ...day, activities: dayActivities };
 }
 
-export async function getAllDaysWithActivities(): Promise<DayWithActivities[]> {
-  const allDays = await getAllDays();
-  const allActivities = await db.select().from(activities).orderBy(asc(activities.time));
+export async function getAllDaysWithActivities(tripId: number): Promise<DayWithActivities[]> {
+  const allDays = await getAllDays(tripId);
+  if (allDays.length === 0) return [];
+  const dayIds = allDays.map((d) => d.id);
+  const allActivities = await db
+    .select()
+    .from(activities)
+    .where(inArray(activities.dayId, dayIds))
+    .orderBy(asc(activities.time));
   return allDays.map((day) => ({
     ...day,
     activities: allActivities.filter((a) => a.dayId === day.id),
