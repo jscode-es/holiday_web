@@ -1,9 +1,12 @@
+import { getActiveTrip } from "@/lib/trips";
 import { getAllBagsWithItems } from "@/lib/queries/bags";
 import { BagCard } from "@/components/bags/bag-card";
 import { AddBagButton } from "@/components/bags/add-bag-button";
 
 export default async function MaletasPage() {
-  const bags = await getAllBagsWithItems();
+  const trip = await getActiveTrip();
+  if (!trip) return null;
+  const bags = await getAllBagsWithItems(trip.id);
   const totalItems = bags.reduce((acc, b) => acc + b.items.length, 0);
   const packedItems = bags.reduce((acc, b) => acc + b.items.filter((i) => i.packed).length, 0);
 
@@ -17,7 +20,7 @@ export default async function MaletasPage() {
             {totalItems > 0 && ` · ${packedItems}/${totalItems} preparado`}
           </p>
         </div>
-        <AddBagButton />
+        <AddBagButton tripId={trip.id} />
       </div>
 
       {bags.length === 0 ? (

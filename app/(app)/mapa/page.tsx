@@ -1,8 +1,11 @@
+import { getActiveTrip } from "@/lib/trips";
 import { getMapMarkers, getMapRoutes } from "@/lib/queries/map";
 import { MapLoader } from "@/components/map/map-loader";
 
 export default async function MapaPage() {
-  const [markers, routes] = await Promise.all([getMapMarkers(), getMapRoutes()]);
+  const trip = await getActiveTrip();
+  if (!trip) return null;
+  const [markers, routes] = await Promise.all([getMapMarkers(trip.id), getMapRoutes(trip.id)]);
 
   return (
     <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-8">

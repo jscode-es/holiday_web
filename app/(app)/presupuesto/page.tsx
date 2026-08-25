@@ -1,13 +1,16 @@
+import { getActiveTrip } from "@/lib/trips";
 import { getBudgetSummary, getPendingItems } from "@/lib/queries/budget";
 import { getChecklistItems } from "@/lib/queries/checklist";
 import { Checklist } from "@/components/budget/checklist";
 import { cn } from "@/lib/utils";
 
 export default async function PresupuestoPage() {
+  const trip = await getActiveTrip();
+  if (!trip) return null;
   const [summary, pending, checklist] = await Promise.all([
-    getBudgetSummary(),
-    getPendingItems(),
-    getChecklistItems(),
+    getBudgetSummary(trip.id),
+    getPendingItems(trip.id),
+    getChecklistItems(trip.id),
   ]);
 
   const stats = [
@@ -25,10 +28,7 @@ export default async function PresupuestoPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className={cn("rounded-2xl bg-linear-to-br p-5", stat.className)}
-          >
+          <div key={stat.label} className={cn("rounded-2xl bg-linear-to-br p-5", stat.className)}>
             <p className="text-xs font-semibold text-neutral-600">{stat.label}</p>
             <p className="mt-2 text-3xl font-bold text-neutral-900">{stat.value}</p>
           </div>
@@ -40,10 +40,7 @@ export default async function PresupuestoPage() {
           <h2 className="text-sm font-semibold tracking-wide text-neutral-400 uppercase">Elementos pendientes</h2>
           <ul className="space-y-2">
             {pending.map((item) => (
-              <li
-                key={item.id}
-                className="rounded-xl border border-neutral-100 px-3 py-2 text-sm font-medium text-neutral-700"
-              >
+              <li key={item.id} className="rounded-xl border border-neutral-100 px-3 py-2 text-sm font-medium text-neutral-700">
                 {item.title}
               </li>
             ))}

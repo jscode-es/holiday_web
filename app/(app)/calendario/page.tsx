@@ -1,13 +1,17 @@
+import { getActiveTrip } from "@/lib/trips";
 import { getAllDaysWithActivities } from "@/lib/queries/days";
 import { MonthGrid } from "@/components/calendar/month-grid";
 import { DaySheet } from "@/components/calendar/day-sheet";
+import { AddDayButton } from "@/components/days/add-day-button";
 
 export default async function CalendarioPage({
   searchParams,
 }: {
   searchParams: Promise<{ day?: string }>;
 }) {
-  const days = await getAllDaysWithActivities();
+  const trip = await getActiveTrip();
+  if (!trip) return null;
+  const days = await getAllDaysWithActivities(trip.id);
   const { day } = await searchParams;
   const selectedDay = day ? days.find((d) => d.id === Number(day)) : undefined;
 
@@ -17,7 +21,14 @@ export default async function CalendarioPage({
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Calendario</h1>
         <p className="text-sm text-neutral-400">{days.length} días · haz clic en un día para ver el itinerario</p>
       </div>
-      <MonthGrid days={days} />
+      {days.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-neutral-200 py-16 text-center">
+          <p className="text-sm text-neutral-400">Este viaje todavía no tiene días.</p>
+          <AddDayButton tripId={trip.id} nextDayNumber={1} />
+        </div>
+      ) : (
+        <MonthGrid days={days} />
+      )}
       <DaySheet day={selectedDay} />
     </div>
   );
