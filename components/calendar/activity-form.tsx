@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/shared/image-uploader";
+import { LocationSearch, type LocationValue } from "@/components/shared/location-search";
 import { youtubeVideoId } from "@/lib/youtube";
 import type { Activity } from "@/lib/queries/days";
 import { createActivity, updateActivity, type ActivityInput } from "@/lib/actions/activities";
@@ -33,6 +35,16 @@ export function ActivityForm({
   const [status, setStatus] = useState<ActivityInput["status"]>(activity?.status ?? null);
   const [imageUrl, setImageUrl] = useState(activity?.imageUrl ?? "");
   const [videoUrl, setVideoUrl] = useState(activity?.videoUrl ?? "");
+  const [originLoc, setOriginLoc] = useState<LocationValue | null>(
+    activity?.originLat != null && activity?.originLng != null
+      ? { label: activity.origin ?? "", lat: activity.originLat, lng: activity.originLng }
+      : null
+  );
+  const [destLoc, setDestLoc] = useState<LocationValue | null>(
+    activity?.destLat != null && activity?.destLng != null
+      ? { label: activity.destination ?? activity.title, lat: activity.destLat, lng: activity.destLng }
+      : null
+  );
   const [saving, setSaving] = useState(false);
 
   const videoUrlInvalid = videoUrl.trim() !== "" && !youtubeVideoId(videoUrl.trim());
@@ -52,27 +64,25 @@ export function ActivityForm({
       cost: formData.get("cost") ? Number(formData.get("cost")) : null,
       currency: (formData.get("currency") as ActivityInput["currency"]) || null,
       durationMin: formData.get("durationMin") ? Number(formData.get("durationMin")) : null,
-      origin: (formData.get("origin") as string) || null,
-      destination: (formData.get("destination") as string) || null,
+      origin: type === "transport" ? (originLoc?.label ?? null) : type === "place" ? null : (formData.get("origin") as string) || null,
+      destination:
+        type === "place" || type === "transport"
+          ? (destLoc?.label ?? null)
+          : (formData.get("destination") as string) || null,
+      originLat: type === "transport" ? (originLoc?.lat ?? null) : null,
+      originLng: type === "transport" ? (originLoc?.lng ?? null) : null,
+      destLat: type === "place" || type === "transport" ? (destLoc?.lat ?? null) : null,
+      destLng: type === "place" || type === "transport" ? (destLoc?.lng ?? null) : null,
       imageUrl: imageUrl.trim() || null,
       videoUrl: !videoUrlInvalid && videoUrl.trim() ? videoUrl.trim() : null,
     };
 
     if (activity) {
-      // Partial update: map coordinates (origin/dest/via lat-lng) aren't editable in
-      // this form, so they're intentionally omitted here rather than nulled out.
+      // Via (scale) coordinates aren't editable in this form, so they're
+      // omitted from the partial update rather than nulled out.
       await updateActivity(activity.id, fields);
     } else {
-      await createActivity({
-        ...fields,
-        originLat: null,
-        originLng: null,
-        destLat: null,
-        destLng: null,
-        viaLabel: null,
-        viaLat: null,
-        viaLng: null,
-      });
+      await createActivity({ ...fields, viaLabel: null, viaLat: null, viaLng: null });
     }
     setSaving(false);
     onDone();
@@ -159,19 +169,39 @@ export function ActivityForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className={cn("grid gap-4", type === "place" ? "grid-cols-2" : "grid-cols-3")}>
         <div className="space-y-2">
           <Label htmlFor="durationMin">Duración (min)</Label>
           <Input id="durationMin" name="durationMin" type="number" defaultValue={activity?.durationMin ?? ""} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="origin">Origen</Label>
-          <Input id="origin" name="origin" defaultValue={activity?.origin ?? ""} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="destination">Destino</Label>
-          <Input id="destination" name="destination" defaultValue={activity?.destination ?? ""} />
-        </div>
+        {type === "place" ? (
+          <div className="space-y-2">
+            <Label>Ubicación</Label>
+            <LocationSearch value={destLoc} onChange={setDestLoc} placeholder="Buscar lugar o dirección…" />
+          </div>
+        ) : type === "transport" ? (
+          <>
+            <div className="space-y-2">
+              <Label>Origen</Label>
+              <LocationSearch value={originLoc} onChange={setOriginLoc} placeholder="Buscar origen…" />
+            </div>
+            <div className="space-y-2">
+              <Label>Destino</Label>
+              <LocationSearch value={destLoc} onChange={setDestLoc} placeholder="Buscar destino…" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="origin">Origen</Label>
+              <Input id="origin" name="origin" defaultValue={activity?.origin ?? ""} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="destination">Destino</Label>
+              <Input id="destination" name="destination" defaultValue={activity?.destination ?? ""} />
+            </div>
+          </>
+        )}
       </div>
 
       <Button type="submit" disabled={saving} className="rounded-full">
