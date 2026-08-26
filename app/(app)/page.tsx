@@ -3,12 +3,11 @@ import { getAllDaysWithActivities } from "@/lib/queries/days";
 import { getAllAccommodations } from "@/lib/queries/accommodations";
 import { getBudgetSummary } from "@/lib/queries/budget";
 import { getMapMarkers, getMapRoutes } from "@/lib/queries/map";
-import { StatCard } from "@/components/dashboard/stat-card";
 import { ItineraryPanel } from "@/components/dashboard/itinerary-panel";
-import { Gallery } from "@/components/dashboard/gallery";
 import { MapLoader } from "@/components/map/map-loader";
 import { EmptyTripsState } from "@/components/trips/empty-trips-state";
-import { convertToDisplay, formatCurrency } from "@/lib/currency";
+import { formatCurrency } from "@/lib/currency";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function Home() {
@@ -19,16 +18,10 @@ export default async function Home() {
   const [days, accommodations, summary, markers, routes] = await Promise.all([
     getAllDaysWithActivities(trip.id),
     getAllAccommodations(trip.id),
-    getBudgetSummary(trip.id),
+    getBudgetSummary(trip.id, currencyDisplay),
     getMapMarkers(trip.id),
     getMapRoutes(trip.id),
   ]);
-
-  const convertedTotal =
-    trip.displayCurrency && trip.eurToJpyRate
-      ? (convertToDisplay(summary.registeredEUR, "EUR", trip.displayCurrency, trip.eurToJpyRate) ?? 0) +
-        (convertToDisplay(summary.registeredJPY, "JPY", trip.displayCurrency, trip.eurToJpyRate) ?? 0)
-      : null;
 
   const allStatuses = [
     ...days.flatMap((d) => d.activities.map((a) => a.status)),
@@ -43,6 +36,24 @@ export default async function Home() {
       ? `${days[0].date} — ${days[days.length - 1].date} · ${days.length} días`
       : "Define las fechas del viaje en Ajustes para generar los días";
 
+  const stats =
+    summary.registeredConverted != null && trip.displayCurrency
+      ? [
+          { label: "Preparación del viaje", value: `${readiness}%`, className: "from-emerald-200 to-teal-100" },
+          {
+            label: "Total registrado",
+            value: formatCurrency(summary.registeredConverted, trip.displayCurrency),
+            className: "from-amber-200 to-orange-100",
+          },
+          { label: "Pendientes", value: String(summary.pendingCount), className: "from-rose-200 to-pink-100" },
+        ]
+      : [
+          { label: "Preparación del viaje", value: `${readiness}%`, className: "from-emerald-200 to-teal-100" },
+          { label: "Registrado (EUR)", value: `${summary.registeredEUR.toFixed(2)} €`, className: "from-amber-200 to-orange-100" },
+          { label: "Registrado (JPY)", value: `¥${summary.registeredJPY.toFixed(0)}`, className: "from-sky-200 to-blue-100" },
+          { label: "Pendientes", value: String(summary.pendingCount), className: "from-rose-200 to-pink-100" },
+        ];
+
   return (
     <div className="space-y-8 px-4 py-6 sm:px-6 md:px-8 md:py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -54,18 +65,13 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Registrado (EUR)" value={`${summary.registeredEUR.toFixed(2)} €`} hint="Vuelos y alojamientos" />
-        <StatCard label="Registrado (JPY)" value={`¥${summary.registeredJPY.toFixed(0)}`} hint="Extras" />
-        <StatCard label="Preparación del viaje" value={`${readiness}%`} hint="Confirmado o programado" />
-        <StatCard label="Elementos pendientes" value={String(summary.pendingCount)} hint="Alojamientos y entradas" />
-        {convertedTotal != null && (
-          <StatCard
-            label={`Registrado (${trip.displayCurrency})`}
-            value={formatCurrency(convertedTotal, trip.displayCurrency!)}
-            hint="Total convertido, todo junto"
-          />
-        )}
+      <div className={cn("grid gap-4 sm:grid-cols-2", stats.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
+        {stats.map((stat) => (
+          <div key={stat.label} className={cn("rounded-2xl bg-linear-to-br p-5", stat.className)}>
+            <p className="text-xs font-semibold text-neutral-600">{stat.label}</p>
+            <p className="mt-2 text-2xl font-bold text-neutral-900">{stat.value}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -86,13 +92,8 @@ export default async function Home() {
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-neutral-100">
-          <MapLoader markers={markers} routes={routes} height="320px" />
+          <MapLoader markers={markers} routes={routes} height="100%" />
         </div>
-      </div>
-
-      <div className="space-y-3">
-        <p className="text-sm font-semibold text-neutral-900">Galería</p>
-        <Gallery />
       </div>
     </div>
   );

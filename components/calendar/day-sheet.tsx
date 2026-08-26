@@ -14,7 +14,7 @@ import { ActivityItem } from "./activity-item";
 import { ActivityForm } from "./activity-form";
 import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
-import type { CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
+import type { CurrencyDisplay } from "@/lib/currency";
 
 export function DaySheet({
   day,

@@ -6,11 +6,9 @@ import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig } from "@/lib/activity-type";
 import { youtubeEmbedUrl } from "@/lib/youtube";
 import { findAccommodationByName } from "@/lib/actions/accommodations";
-import { convertToDisplay, formatCurrency, type Currency } from "@/lib/currency";
+import { costDisplay, type CurrencyDisplay } from "@/lib/currency";
 import type { Activity } from "@/lib/queries/days";
 import type { Accommodation } from "@/lib/queries/accommodations";
-
-export type CurrencyDisplay = { displayCurrency: Currency | null; eurToJpyRate: number | null };
 
 function DetailRow({ label, value, title }: { label: string; value: string; title?: string }) {
   return (
@@ -21,14 +19,6 @@ function DetailRow({ label, value, title }: { label: string; value: string; titl
       </span>
     </div>
   );
-}
-
-function costDisplay(cost: number, currency: Currency, currencyDisplay?: CurrencyDisplay) {
-  const converted = currencyDisplay
-    ? convertToDisplay(cost, currency, currencyDisplay.displayCurrency, currencyDisplay.eurToJpyRate)
-    : null;
-  if (converted == null) return { value: `${cost} ${currency}`, title: undefined };
-  return { value: formatCurrency(converted, currencyDisplay!.displayCurrency!), title: `Original: ${cost} ${currency}` };
 }
 
 export function ActivityDetailDialog({

@@ -10,7 +10,7 @@ import { ActivityForm } from "@/components/calendar/activity-form";
 import { DayForm } from "@/components/itinerario/day-form";
 import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities, Activity } from "@/lib/queries/days";
-import type { CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
+import type { CurrencyDisplay } from "@/lib/currency";
 
 export function ItineraryPanel({
   days,

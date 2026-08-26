@@ -23,3 +23,22 @@ export function convertToDisplay(
 export function formatCurrency(amount: number, currency: Currency): string {
   return currency === "EUR" ? `${amount.toFixed(2)} €` : `¥${Math.round(amount)}`;
 }
+
+export type CurrencyDisplay = { displayCurrency: Currency | null; eurToJpyRate: number | null };
+
+/**
+ * Formats a cost for display: converted to the trip's display currency when
+ * configured (with the original amount in the `title` for a hover tooltip),
+ * or the raw amount + currency otherwise.
+ */
+export function costDisplay(
+  cost: number,
+  currency: Currency,
+  currencyDisplay?: CurrencyDisplay
+): { value: string; title?: string } {
+  const converted = currencyDisplay
+    ? convertToDisplay(cost, currency, currencyDisplay.displayCurrency, currencyDisplay.eurToJpyRate)
+    : null;
+  if (converted == null) return { value: `${cost} ${currency}`, title: undefined };
+  return { value: formatCurrency(converted, currencyDisplay!.displayCurrency!), title: `Original: ${cost} ${currency}` };
+}

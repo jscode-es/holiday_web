@@ -12,7 +12,7 @@ import { ActivityCard } from "./activity-card";
 import { DayForm } from "./day-form";
 import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities } from "@/lib/queries/days";
-import type { CurrencyDisplay } from "@/components/shared/activity-detail-dialog";
+import type { CurrencyDisplay } from "@/lib/currency";
 
 export function DayTabs({ days, currencyDisplay }: { days: DayWithActivities[]; currencyDisplay?: CurrencyDisplay }) {
   const router = useRouter();
