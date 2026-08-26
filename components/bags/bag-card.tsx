@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Luggage, Pencil, Trash2, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,9 +25,13 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
   const [newItem, setNewItem] = useState("");
   const [confirmingDeleteBag, setConfirmingDeleteBag] = useState(false);
   const [deletingItem, setDeletingItem] = useState<{ id: number; label: string } | null>(null);
+  const [, startTransition] = useTransition();
+  const [items, setOptimisticPacked] = useOptimistic(bag.items, (state, { id, packed }: { id: number; packed: boolean }) =>
+    state.map((i) => (i.id === id ? { ...i, packed } : i))
+  );
 
-  const packedCount = bag.items.filter((i) => i.packed).length;
-  const total = bag.items.length;
+  const packedCount = items.filter((i) => i.packed).length;
+  const total = items.length;
   const percent = total > 0 ? Math.round((packedCount / total) * 100) : 0;
 
   async function commitRename() {
@@ -115,17 +119,21 @@ export function BagCard({ bag }: { bag: BagWithItems }) {
       </div>
 
       <div className="max-h-64 space-y-1 overflow-y-auto">
-        {bag.items.length === 0 ? (
+        {items.length === 0 ? (
           <p className="py-4 text-center text-xs text-neutral-400">Sin elementos todavía.</p>
         ) : (
-          bag.items.map((item) => (
+          items.map((item) => (
             <div key={item.id} className="group flex items-center gap-2 rounded-lg px-1 py-1 hover:bg-neutral-50">
               <Checkbox
                 checked={item.packed}
                 disabled={isReadOnly}
-                onCheckedChange={async (checked) => {
-                  await toggleBagItem(item.id, checked === true);
-                  router.refresh();
+                onCheckedChange={(checked) => {
+                  const packed = checked === true;
+                  startTransition(async () => {
+                    setOptimisticPacked({ id: item.id, packed });
+                    await toggleBagItem(item.id, packed);
+                    router.refresh();
+                  });
                 }}
               />
               <span
