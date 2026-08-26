@@ -3,7 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarDays, ListChecks, Map, Luggage, Wallet, Settings, Menu, X, Eye } from "lucide-react";
+import {
+  LayoutDashboard,
+  CalendarDays,
+  ListChecks,
+  Map,
+  Luggage,
+  Wallet,
+  StickyNote,
+  Lightbulb,
+  Settings,
+  Menu,
+  X,
+  Eye,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { WeatherCard } from "@/components/weather-dialog";
@@ -19,6 +32,8 @@ const links = [
   { href: "/mapa", label: "Mapa", icon: Map },
   { href: "/maletas", label: "Maletas", icon: Luggage },
   { href: "/presupuesto", label: "Presupuesto", icon: Wallet },
+  { href: "/notas", label: "Notas", icon: StickyNote },
+  { href: "/utilidades", label: "Utilidades", icon: Lightbulb },
 ];
 
 export function Sidebar({

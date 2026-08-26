@@ -1,5 +1,6 @@
 import { sqliteTable, integer, text, real } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import type { Tag } from "@/lib/tags";
 
 export const trips = sqliteTable("trips", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -103,4 +104,33 @@ export const bagItems = sqliteTable("bag_items", {
     .references(() => bags.id, { onDelete: "cascade" }),
   label: text("label").notNull(),
   packed: integer("packed", { mode: "boolean" }).notNull().default(false),
+});
+
+export const notes = sqliteTable("notes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  tripId: integer("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  body: text("body"),
+  mediaUrl: text("media_url"),
+  tags: text("tags", { mode: "json" }).$type<Tag[]>(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+});
+
+export const utilities = sqliteTable("utilities", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  tripId: integer("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  url: text("url"),
+  mediaUrl: text("media_url"),
+  tags: text("tags", { mode: "json" }).$type<Tag[]>(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
 });
