@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plane, Eye, Pencil, Trash2 } from "lucide-react";
+import { Plane, Eye, Pencil, Trash2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -20,10 +20,12 @@ import type { Activity } from "@/lib/queries/days";
 export function ActivityCard({
   activity,
   currencyDisplay,
+  accommodationUrl,
   readOnly,
 }: {
   activity: Activity;
   currencyDisplay?: CurrencyDisplay;
+  accommodationUrl?: string;
   readOnly?: boolean;
 }) {
   const router = useRouter();
@@ -83,7 +85,18 @@ export function ActivityCard({
       </div>
 
       <div className="mt-auto flex items-center justify-between pt-1">
-        {activity.cost != null ? (
+        {accommodationUrl ? (
+          <a
+            href={accommodationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-900"
+          >
+            <ExternalLink className="size-3" />
+            Más información
+          </a>
+        ) : activity.cost != null ? (
           <span
             className="text-xs font-medium text-neutral-400"
             title={convertedCost != null ? `Original: ${activity.cost} ${activity.currency}` : undefined}

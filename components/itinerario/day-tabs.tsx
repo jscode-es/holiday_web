@@ -17,10 +17,12 @@ import type { CurrencyDisplay } from "@/lib/currency";
 export function DayTabs({
   days,
   currencyDisplay,
+  accommodationUrls,
   readOnly,
 }: {
   days: DayWithActivities[];
   currencyDisplay?: CurrencyDisplay;
+  accommodationUrls?: Map<string, string>;
   readOnly?: boolean;
 }) {
   const router = useRouter();
@@ -105,7 +107,13 @@ export function DayTabs({
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {day.activities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} currencyDisplay={currencyDisplay} readOnly={readOnly} />
+                <ActivityCard
+                  key={activity.id}
+                  activity={activity}
+                  currencyDisplay={currencyDisplay}
+                  accommodationUrl={activity.type === "hotel" ? accommodationUrls?.get(activity.title) : undefined}
+                  readOnly={readOnly}
+                />
               ))}
             </div>
           )}
