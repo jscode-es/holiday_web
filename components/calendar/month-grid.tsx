@@ -22,7 +22,7 @@ function toDate(iso: string) {
   return parse(iso, "yyyy-MM-dd", new Date());
 }
 
-export function MonthGrid({ days }: { days: DayWithActivities[] }) {
+export function MonthGrid({ days, basePath = "/calendario" }: { days: DayWithActivities[]; basePath?: string }) {
   if (days.length === 0) return null;
 
   const byDate = new Map(days.map((d) => [d.date, d]));
@@ -102,7 +102,7 @@ export function MonthGrid({ days }: { days: DayWithActivities[] }) {
                   return tripDay ? (
                     <Link
                       key={iso}
-                      href={`/calendario?day=${tripDay.id}`}
+                      href={`${basePath}?day=${tripDay.id}`}
                       className="transition-colors hover:brightness-95"
                     >
                       {cellBody}

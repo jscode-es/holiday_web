@@ -19,16 +19,18 @@ import type { CurrencyDisplay } from "@/lib/currency";
 export function DaySheet({
   day,
   currencyDisplay,
+  basePath = "/calendario",
 }: {
   day: DayWithActivities | undefined;
   currencyDisplay?: CurrencyDisplay;
+  basePath?: string;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Activity | "new" | null>(null);
 
   function close() {
     setEditing(null);
-    router.push("/calendario");
+    router.push(basePath);
   }
 
   return (
