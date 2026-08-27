@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { notes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { assertMutable } from "@/lib/env";
+import { assertMutable } from "@/lib/mutation-guard";
 import type { Tag } from "@/lib/tags";
 
 function revalidateNotesPath() {
@@ -12,7 +12,7 @@ function revalidateNotesPath() {
 }
 
 export async function createNote(tripId: number, title: string, body: string, mediaUrl: string, tags: Tag[]) {
-  assertMutable();
+  await assertMutable();
   const row = await db
     .insert(notes)
     .values({ tripId, title, body: body || null, mediaUrl: mediaUrl || null, tags })
@@ -23,7 +23,7 @@ export async function createNote(tripId: number, title: string, body: string, me
 }
 
 export async function updateNote(id: number, title: string, body: string, mediaUrl: string, tags: Tag[]) {
-  assertMutable();
+  await assertMutable();
   await db
     .update(notes)
     .set({ title, body: body || null, mediaUrl: mediaUrl || null, tags })
@@ -33,7 +33,7 @@ export async function updateNote(id: number, title: string, body: string, mediaU
 }
 
 export async function deleteNote(id: number) {
-  assertMutable();
+  await assertMutable();
   await db.delete(notes).where(eq(notes.id, id)).run();
   revalidateNotesPath();
 }

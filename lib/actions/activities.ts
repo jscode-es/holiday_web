@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { activities } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { assertMutable } from "@/lib/env";
+import { assertMutable } from "@/lib/mutation-guard";
 
 export type ActivityInput = {
   dayId: number;
@@ -38,21 +38,21 @@ function revalidateActivityPaths() {
 }
 
 export async function createActivity(input: ActivityInput) {
-  assertMutable();
+  await assertMutable();
   const row = await db.insert(activities).values(input).returning().get();
   revalidateActivityPaths();
   return row;
 }
 
 export async function updateActivity(id: number, input: Partial<ActivityInput>) {
-  assertMutable();
+  await assertMutable();
   const row = await db.update(activities).set(input).where(eq(activities.id, id)).returning().get();
   revalidateActivityPaths();
   return row;
 }
 
 export async function deleteActivity(id: number) {
-  assertMutable();
+  await assertMutable();
   await db.delete(activities).where(eq(activities.id, id)).run();
   revalidateActivityPaths();
 }

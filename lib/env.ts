@@ -11,11 +11,3 @@ export const isReadOnly =
   typeof window === "undefined"
     ? process.env.VERCEL === "1" && !process.env.TURSO_DATABASE_URL
     : process.env.NEXT_PUBLIC_READ_ONLY === "1";
-
-export function assertMutable() {
-  if (isReadOnly) {
-    throw new Error(
-      "Esta acción no está disponible en la versión desplegada. Edita los datos en local y vuelve a importar la copia de seguridad."
-    );
-  }
-}

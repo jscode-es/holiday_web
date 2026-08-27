@@ -6,8 +6,9 @@ import { eq, asc } from "drizzle-orm";
 import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { assertMutable } from "@/lib/env";
+import { assertMutable } from "@/lib/mutation-guard";
 import { ACTIVE_TRIP_COOKIE } from "@/lib/trips";
+import { randomBytes } from "crypto";
 
 /**
  * Keeps `days` in sync with a trip's date range: adds a placeholder day for
@@ -45,10 +46,10 @@ async function syncDaysToRange(tripId: number, startDate: string, endDate: strin
 }
 
 export async function createTrip(input: { name: string; emoji: string | null }) {
-  assertMutable();
+  await assertMutable();
   const name = input.name.trim();
   if (!name) throw new Error("El nombre del viaje no puede estar vacío.");
-  const row = await db.insert(trips).values({ name, emoji: input.emoji }).returning().get();
+  const row = await db.insert(trips).values({ name, emoji: input.emoji, shareToken: randomBytes(16).toString("hex") }).returning().get();
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(row.id), {
     httpOnly: true,
@@ -72,7 +73,7 @@ export type TripUpdateInput = {
 };
 
 export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>) {
-  assertMutable();
+  await assertMutable();
   const fields = { ...input };
   if (fields.name != null) {
     const trimmed = fields.name.trim();
@@ -93,14 +94,23 @@ export async function updateTrip(tripId: number, input: Partial<TripUpdateInput>
 }
 
 export async function deleteTrip(tripId: number) {
-  assertMutable();
+  await assertMutable();
   await db.delete(trips).where(eq(trips.id, tripId)).run();
   const cookieStore = await cookies();
   cookieStore.delete(ACTIVE_TRIP_COOKIE);
   revalidatePath("/", "layout");
 }
 
+export async function regenerateShareToken(tripId: number) {
+  await assertMutable();
+  const shareToken = randomBytes(16).toString("hex");
+  const row = await db.update(trips).set({ shareToken }).where(eq(trips.id, tripId)).returning().get();
+  revalidatePath("/ajustes");
+  return row;
+}
+
 export async function setActiveTrip(tripId: number) {
+  await assertMutable();
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(tripId), {
     httpOnly: true,

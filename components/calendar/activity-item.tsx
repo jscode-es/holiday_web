@@ -17,15 +17,18 @@ export function ActivityItem({
   activity,
   onEdit,
   currencyDisplay,
+  readOnly,
 }: {
   activity: Activity;
   onEdit: (activity: Activity) => void;
   currencyDisplay?: CurrencyDisplay;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [view, setView] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const config = typeConfig[activity.type];
+  const hideControls = readOnly ?? isReadOnly;
 
   async function handleDelete() {
     await deleteActivity(activity.id);
@@ -58,7 +61,7 @@ export function ActivityItem({
           {activity.description && <p className="line-clamp-2 text-sm text-neutral-500">{activity.description}</p>}
         </div>
       </button>
-      {!isReadOnly && (
+      {!hideControls && (
         <div className="flex shrink-0 gap-1">
           <Button size="sm" variant="ghost" onClick={() => onEdit(activity)}>
             Editar

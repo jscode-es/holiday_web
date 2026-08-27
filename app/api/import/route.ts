@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { trips, days, activities, accommodations, checklistItems, bags, bagItems } from "@/db/schema";
+import { randomBytes } from "crypto";
 
 type Backup = {
   version: number;
@@ -42,6 +43,7 @@ async function applyBackup(executor: typeof db, backup: Backup) {
   const tripsWithDates = backup.trips.map((t) => ({
     ...t,
     createdAt: t.createdAt ? new Date(t.createdAt) : undefined,
+    shareToken: t.shareToken ?? randomBytes(16).toString("hex"),
   }));
 
   if (tripsWithDates.length) await executor.insert(trips).values(tripsWithDates).run();

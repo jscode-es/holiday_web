@@ -14,12 +14,21 @@ import { isReadOnly } from "@/lib/env";
 import type { DayWithActivities } from "@/lib/queries/days";
 import type { CurrencyDisplay } from "@/lib/currency";
 
-export function DayTabs({ days, currencyDisplay }: { days: DayWithActivities[]; currencyDisplay?: CurrencyDisplay }) {
+export function DayTabs({
+  days,
+  currencyDisplay,
+  readOnly,
+}: {
+  days: DayWithActivities[];
+  currencyDisplay?: CurrencyDisplay;
+  readOnly?: boolean;
+}) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [adding, setAdding] = useState(false);
   const [editingDay, setEditingDay] = useState(false);
   const day = days[index];
+  const hideControls = readOnly ?? isReadOnly;
 
   return (
     <div className="space-y-6">
@@ -70,7 +79,7 @@ export function DayTabs({ days, currencyDisplay }: { days: DayWithActivities[]; 
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-neutral-900">{day.title}</h2>
-                {!isReadOnly && (
+                {!hideControls && (
                   <Button size="icon-xs" variant="ghost" onClick={() => setEditingDay(true)} aria-label="Editar día">
                     <Pencil className="size-3.5" />
                   </Button>
@@ -81,7 +90,7 @@ export function DayTabs({ days, currencyDisplay }: { days: DayWithActivities[]; 
               </p>
               {day.summary && <p className="mt-2 max-w-3xl text-sm text-neutral-500">{day.summary}</p>}
             </div>
-            {!isReadOnly && (
+            {!hideControls && (
               <Button size="sm" className="rounded-full" onClick={() => setAdding(true)}>
                 <Plus className="size-4" />
                 Añadir actividad
@@ -96,7 +105,7 @@ export function DayTabs({ days, currencyDisplay }: { days: DayWithActivities[]; 
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {day.activities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} currencyDisplay={currencyDisplay} />
+                <ActivityCard key={activity.id} activity={activity} currencyDisplay={currencyDisplay} readOnly={readOnly} />
               ))}
             </div>
           )}

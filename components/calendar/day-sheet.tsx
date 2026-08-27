@@ -19,16 +19,21 @@ import type { CurrencyDisplay } from "@/lib/currency";
 export function DaySheet({
   day,
   currencyDisplay,
+  basePath = "/calendario",
+  readOnly,
 }: {
   day: DayWithActivities | undefined;
   currencyDisplay?: CurrencyDisplay;
+  basePath?: string;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Activity | "new" | null>(null);
+  const hideControls = readOnly ?? isReadOnly;
 
   function close() {
     setEditing(null);
-    router.push("/calendario");
+    router.push(basePath);
   }
 
   return (
@@ -58,7 +63,7 @@ export function DaySheet({
                 />
               ) : (
                 <>
-                  {!isReadOnly && (
+                  {!hideControls && (
                     <Button size="sm" className="mb-4 rounded-full" onClick={() => setEditing("new")}>
                       Añadir actividad
                     </Button>
@@ -70,6 +75,7 @@ export function DaySheet({
                         activity={activity}
                         onEdit={setEditing}
                         currencyDisplay={currencyDisplay}
+                        readOnly={readOnly}
                       />
                     ))}
                   </ScrollArea>

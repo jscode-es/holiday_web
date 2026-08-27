@@ -20,9 +20,11 @@ import type { Activity } from "@/lib/queries/days";
 export function ActivityCard({
   activity,
   currencyDisplay,
+  readOnly,
 }: {
   activity: Activity;
   currencyDisplay?: CurrencyDisplay;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [view, setView] = useState(false);
@@ -32,6 +34,7 @@ export function ActivityCard({
   const isLongHaul = activity.type === "transport" && (activity.durationMin ?? 0) >= 360;
   const config = typeConfig[activity.type];
   const Icon = isLongHaul ? Plane : config.icon;
+  const hideControls = readOnly ?? isReadOnly;
 
   const convertedCost =
     activity.cost != null && activity.currency && currencyDisplay
@@ -96,7 +99,7 @@ export function ActivityCard({
           <Button size="icon-xs" variant="ghost" onClick={() => setView(true)} aria-label="Ver más">
             <Eye className="size-3.5" />
           </Button>
-          {!isReadOnly && (
+          {!hideControls && (
             <>
               <Button size="icon-xs" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
                 <Pencil className="size-3.5" />

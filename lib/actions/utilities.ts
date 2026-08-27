@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { utilities } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { assertMutable } from "@/lib/env";
+import { assertMutable } from "@/lib/mutation-guard";
 import type { Tag } from "@/lib/tags";
 
 function revalidateUtilitiesPath() {
@@ -19,7 +19,7 @@ export async function createUtility(
   mediaUrl: string,
   tags: Tag[]
 ) {
-  assertMutable();
+  await assertMutable();
   const row = await db
     .insert(utilities)
     .values({ tripId, title, description: description || null, url: url || null, mediaUrl: mediaUrl || null, tags })
@@ -37,7 +37,7 @@ export async function updateUtility(
   mediaUrl: string,
   tags: Tag[]
 ) {
-  assertMutable();
+  await assertMutable();
   await db
     .update(utilities)
     .set({ title, description: description || null, url: url || null, mediaUrl: mediaUrl || null, tags })
@@ -47,7 +47,7 @@ export async function updateUtility(
 }
 
 export async function deleteUtility(id: number) {
-  assertMutable();
+  await assertMutable();
   await db.delete(utilities).where(eq(utilities.id, id)).run();
   revalidateUtilitiesPath();
 }

@@ -11,6 +11,7 @@ export const trips = sqliteTable("trips", {
   travelers: integer("travelers"),
   displayCurrency: text("display_currency", { enum: ["EUR", "JPY"] }),
   eurToJpyRate: real("eur_to_jpy_rate"),
+  shareToken: text("share_token").unique(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),

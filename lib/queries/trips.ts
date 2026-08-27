@@ -12,3 +12,8 @@ export async function getTripById(id: number): Promise<Trip | undefined> {
   const [trip] = await db.select().from(trips).where(eq(trips.id, id));
   return trip;
 }
+
+export async function getTripByShareToken(token: string): Promise<Trip | undefined> {
+  const [trip] = await db.select().from(trips).where(eq(trips.shareToken, token));
+  return trip;
+}
