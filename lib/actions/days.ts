@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { days } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { assertMutable } from "@/lib/env";
+import { assertMutable } from "@/lib/mutation-guard";
 
 export type DayInput = {
   date: string;
@@ -14,7 +14,7 @@ export type DayInput = {
 };
 
 export async function updateDay(id: number, input: Partial<DayInput>) {
-  assertMutable();
+  await assertMutable();
   const row = await db.update(days).set(input).where(eq(days.id, id)).returning().get();
   revalidatePath("/");
   revalidatePath("/calendario");
