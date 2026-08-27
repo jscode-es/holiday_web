@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +16,12 @@ import {
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/shared/image-uploader";
 import { LocationSearch, type LocationValue } from "@/components/shared/location-search";
+import { AccommodationFormDialog } from "@/components/shared/accommodation-form-dialog";
 import { youtubeVideoId } from "@/lib/youtube";
 import type { Activity } from "@/lib/queries/days";
+import type { Accommodation } from "@/lib/queries/accommodations";
 import { createActivity, updateActivity, type ActivityInput } from "@/lib/actions/activities";
+import { findAccommodationByName } from "@/lib/actions/accommodations";
 
 const TYPES: ActivityInput["type"][] = ["transport", "place", "event", "comida", "nota", "aviso", "hotel"];
 const STATUSES: NonNullable<ActivityInput["status"]>[] = ["programado", "confirmado", "pendiente"];
@@ -46,6 +50,19 @@ export function ActivityForm({
       : null
   );
   const [saving, setSaving] = useState(false);
+  const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
+  const [editingAccommodation, setEditingAccommodation] = useState(false);
+
+  useEffect(() => {
+    if (type !== "hotel" || !activity) return;
+    let cancelled = false;
+    findAccommodationByName(activity.title, activity.dayId).then((result) => {
+      if (!cancelled) setAccommodation(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [type, activity]);
 
   const videoUrlInvalid = videoUrl.trim() !== "" && !youtubeVideoId(videoUrl.trim());
 
@@ -204,9 +221,24 @@ export function ActivityForm({
         )}
       </div>
 
+      {type === "hotel" && accommodation && (
+        <Button type="button" variant="outline" onClick={() => setEditingAccommodation(true)}>
+          <Pencil className="size-3.5" />
+          Editar datos del alojamiento
+        </Button>
+      )}
+
       <Button type="submit" disabled={saving} className="rounded-full">
         {saving ? "Guardando…" : activity ? "Guardar cambios" : "Añadir actividad"}
       </Button>
+
+      {accommodation && (
+        <AccommodationFormDialog
+          accommodation={accommodation}
+          open={editingAccommodation}
+          onOpenChange={setEditingAccommodation}
+        />
+      )}
     </form>
   );
 }
