@@ -101,6 +101,14 @@ export async function deleteTrip(tripId: number) {
   revalidatePath("/", "layout");
 }
 
+export async function regenerateShareToken(tripId: number) {
+  await assertMutable();
+  const shareToken = randomBytes(16).toString("hex");
+  const row = await db.update(trips).set({ shareToken }).where(eq(trips.id, tripId)).returning().get();
+  revalidatePath("/ajustes");
+  return row;
+}
+
 export async function setActiveTrip(tripId: number) {
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(tripId), {

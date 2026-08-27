@@ -2,6 +2,7 @@ import { getActiveTrip } from "@/lib/trips";
 import { getAllDays } from "@/lib/queries/days";
 import { BackupPanel } from "@/components/settings/backup-panel";
 import { LogoutButton } from "@/components/settings/logout-button";
+import { ShareLinkPanel } from "@/components/settings/share-link-panel";
 import { TripSettingsForm } from "@/components/trips/trip-settings-form";
 
 export default async function AjustesPage() {
@@ -25,6 +26,8 @@ export default async function AjustesPage() {
           <TripSettingsForm trip={trip} days={days} />
         </div>
       )}
+
+      {trip && <ShareLinkPanel trip={trip} />}
 
       <BackupPanel />
 
