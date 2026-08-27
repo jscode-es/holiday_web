@@ -1,0 +1,25 @@
+import { notFound } from "next/navigation";
+import { getTripByShareToken } from "@/lib/queries/trips";
+import { getMapMarkers, getMapRoutes } from "@/lib/queries/map";
+import { MapLoader } from "@/components/map/map-loader";
+
+export default async function PublicMapaPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  const trip = await getTripByShareToken(token);
+  if (!trip) notFound();
+  const [markers, routes] = await Promise.all([getMapMarkers(trip.id), getMapRoutes(trip.id)]);
+
+  return (
+    <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Mapa de rutas</h1>
+        <p className="text-sm text-neutral-400">
+          {markers.length} paradas · {routes.length} trayectos
+        </p>
+      </div>
+      <div className="overflow-hidden rounded-2xl border border-neutral-100">
+        <MapLoader markers={markers} routes={routes} />
+      </div>
+    </div>
+  );
+}
