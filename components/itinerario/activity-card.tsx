@@ -119,7 +119,13 @@ export function ActivityCard({
         onConfirm={handleDelete}
       />
 
-      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} currencyDisplay={currencyDisplay} />
+      <ActivityDetailDialog
+        activity={activity}
+        open={view}
+        onOpenChange={setView}
+        currencyDisplay={currencyDisplay}
+        readOnly={hideControls}
+      />
 
       <Dialog open={editing} onOpenChange={setEditing}>
         <DialogContent className="sm:max-w-lg">

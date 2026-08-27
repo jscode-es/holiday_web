@@ -79,6 +79,7 @@ export const accommodations = sqliteTable("accommodations", {
   roomType: text("room_type"),
   cancellationPolicy: text("cancellation_policy"),
   phone: text("phone"),
+  url: text("url"),
 });
 
 export const checklistItems = sqliteTable("checklist_items", {

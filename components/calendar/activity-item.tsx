@@ -79,7 +79,13 @@ export function ActivityItem({
         onConfirm={handleDelete}
       />
 
-      <ActivityDetailDialog activity={activity} open={view} onOpenChange={setView} currencyDisplay={currencyDisplay} />
+      <ActivityDetailDialog
+        activity={activity}
+        open={view}
+        onOpenChange={setView}
+        currencyDisplay={currencyDisplay}
+        readOnly={hideControls}
+      />
     </div>
   );
 }

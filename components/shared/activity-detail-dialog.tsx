@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ExternalLink, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { AccommodationFormDialog } from "@/components/shared/accommodation-form-dialog";
 import { activityImageUrl } from "@/lib/activity-image";
 import { typeConfig } from "@/lib/activity-type";
 import { youtubeEmbedUrl } from "@/lib/youtube";
@@ -26,15 +29,18 @@ export function ActivityDetailDialog({
   open,
   onOpenChange,
   currencyDisplay,
+  readOnly,
 }: {
   activity: Activity;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currencyDisplay?: CurrencyDisplay;
+  readOnly?: boolean;
 }) {
   const config = typeConfig[activity.type];
   const embedUrl = activity.videoUrl ? youtubeEmbedUrl(activity.videoUrl) : null;
   const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
+  const [editingAccommodation, setEditingAccommodation] = useState(false);
 
   useEffect(() => {
     if (!open || activity.type !== "hotel") return;
@@ -89,9 +95,52 @@ export function ActivityDetailDialog({
               {accommodation.cost != null && accommodation.currency && (
                 <DetailRow label="Coste" {...costDisplay(accommodation.cost, accommodation.currency, currencyDisplay)} />
               )}
+              {accommodation.roomType && <DetailRow label="Habitación" value={accommodation.roomType} />}
+              {accommodation.address && <DetailRow label="Dirección" value={accommodation.address} />}
+              {accommodation.phone && <DetailRow label="Teléfono" value={accommodation.phone} />}
+              {accommodation.confirmationNumber && (
+                <DetailRow label="Nº de confirmación" value={accommodation.confirmationNumber} />
+              )}
+              {accommodation.cancellationPolicy && (
+                <DetailRow label="Cancelación" value={accommodation.cancellationPolicy} />
+              )}
+              {accommodation.notes && <DetailRow label="Notas" value={accommodation.notes} />}
             </>
           )}
         </div>
+
+        {accommodation?.url && (
+          <a
+            href={accommodation.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-900"
+          >
+            <ExternalLink className="size-3" />
+            Más información
+          </a>
+        )}
+
+        {accommodation && !readOnly && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start"
+            onClick={() => setEditingAccommodation(true)}
+          >
+            <Pencil className="size-3.5" />
+            Editar alojamiento
+          </Button>
+        )}
+
+        {accommodation && (
+          <AccommodationFormDialog
+            accommodation={accommodation}
+            open={editingAccommodation}
+            onOpenChange={setEditingAccommodation}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
