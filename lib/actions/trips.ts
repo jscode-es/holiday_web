@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { assertMutable } from "@/lib/env";
 import { ACTIVE_TRIP_COOKIE } from "@/lib/trips";
+import { randomBytes } from "crypto";
 
 /**
  * Keeps `days` in sync with a trip's date range: adds a placeholder day for
@@ -48,7 +49,7 @@ export async function createTrip(input: { name: string; emoji: string | null }) 
   assertMutable();
   const name = input.name.trim();
   if (!name) throw new Error("El nombre del viaje no puede estar vacío.");
-  const row = await db.insert(trips).values({ name, emoji: input.emoji }).returning().get();
+  const row = await db.insert(trips).values({ name, emoji: input.emoji, shareToken: randomBytes(16).toString("hex") }).returning().get();
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(row.id), {
     httpOnly: true,
