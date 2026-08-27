@@ -110,6 +110,7 @@ export async function regenerateShareToken(tripId: number) {
 }
 
 export async function setActiveTrip(tripId: number) {
+  await assertMutable();
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_TRIP_COOKIE, String(tripId), {
     httpOnly: true,

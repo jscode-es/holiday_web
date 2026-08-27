@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getTripByShareToken } from "@/lib/queries/trips";
 import { PublicTripNav } from "@/components/public/public-trip-nav";
 
+export const dynamic = "force-dynamic";
+
 export default async function PublicTripLayout({
   children,
   params,

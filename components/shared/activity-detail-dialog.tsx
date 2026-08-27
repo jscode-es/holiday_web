@@ -39,13 +39,13 @@ export function ActivityDetailDialog({
   useEffect(() => {
     if (!open || activity.type !== "hotel") return;
     let cancelled = false;
-    findAccommodationByName(activity.title).then((result) => {
+    findAccommodationByName(activity.title, activity.dayId).then((result) => {
       if (!cancelled) setAccommodation(result);
     });
     return () => {
       cancelled = true;
     };
-  }, [open, activity.type, activity.title]);
+  }, [open, activity.type, activity.title, activity.dayId]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

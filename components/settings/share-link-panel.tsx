@@ -24,9 +24,12 @@ export function ShareLinkPanel({ trip }: { trip: Trip }) {
 
   async function handleRegenerate() {
     setRegenerating(true);
-    await regenerateShareToken(trip.id);
-    setRegenerating(false);
-    router.refresh();
+    try {
+      await regenerateShareToken(trip.id);
+      router.refresh();
+    } finally {
+      setRegenerating(false);
+    }
   }
 
   return (
@@ -36,9 +39,13 @@ export function ShareLinkPanel({ trip }: { trip: Trip }) {
         Cualquiera con este link puede ver el itinerario, el mapa y el calendario, sin poder editarlos.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="outline" className="rounded-full" onClick={handleCopy}>
-          {copied ? "Copiado" : "Copiar link"}
-        </Button>
+        {trip.shareToken ? (
+          <Button type="button" variant="outline" className="rounded-full" onClick={handleCopy}>
+            {copied ? "Copiado" : "Copiar link"}
+          </Button>
+        ) : (
+          <p className="text-sm text-neutral-500">Este viaje no tiene un link de compartir todavía.</p>
+        )}
         {!isReadOnly && (
           <Button
             type="button"
