@@ -37,6 +37,7 @@ export function ActivityCard({
   const config = typeConfig[activity.type];
   const Icon = isLongHaul ? Plane : config.icon;
   const hideControls = readOnly ?? isReadOnly;
+  const moreInfoUrl = activity.url ?? accommodationUrl;
 
   const convertedCost =
     activity.cost != null && activity.currency && currencyDisplay
@@ -85,9 +86,9 @@ export function ActivityCard({
       </div>
 
       <div className="mt-auto flex items-center justify-between pt-1">
-        {accommodationUrl ? (
+        {moreInfoUrl ? (
           <a
-            href={accommodationUrl}
+            href={moreInfoUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}

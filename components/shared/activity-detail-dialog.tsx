@@ -41,6 +41,7 @@ export function ActivityDetailDialog({
   const embedUrl = activity.videoUrl ? youtubeEmbedUrl(activity.videoUrl) : null;
   const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
   const [editingAccommodation, setEditingAccommodation] = useState(false);
+  const moreInfoUrl = activity.url ?? accommodation?.url;
 
   useEffect(() => {
     if (!open || activity.type !== "hotel") return;
@@ -109,9 +110,9 @@ export function ActivityDetailDialog({
           )}
         </div>
 
-        {accommodation?.url && (
+        {moreInfoUrl && (
           <a
-            href={accommodation.url}
+            href={moreInfoUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-900"

@@ -39,6 +39,7 @@ export function ActivityForm({
   const [status, setStatus] = useState<ActivityInput["status"]>(activity?.status ?? null);
   const [imageUrl, setImageUrl] = useState(activity?.imageUrl ?? "");
   const [videoUrl, setVideoUrl] = useState(activity?.videoUrl ?? "");
+  const [url, setUrl] = useState(activity?.url ?? "");
   const [originLoc, setOriginLoc] = useState<LocationValue | null>(
     activity?.originLat != null && activity?.originLng != null
       ? { label: activity.origin ?? "", lat: activity.originLat, lng: activity.originLng }
@@ -92,6 +93,7 @@ export function ActivityForm({
       destLng: type === "place" || type === "transport" ? (destLoc?.lng ?? null) : null,
       imageUrl: imageUrl.trim() || null,
       videoUrl: !videoUrlInvalid && videoUrl.trim() ? videoUrl.trim() : null,
+      url: url.trim() || null,
     };
 
     if (activity) {
@@ -158,6 +160,18 @@ export function ActivityForm({
         {videoUrlInvalid && (
           <p className="text-xs text-rose-600">No parece un enlace de YouTube válido.</p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="url">Enlace (más información)</Label>
+        <Input
+          id="url"
+          name="url"
+          type="url"
+          placeholder="https://…"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
       </div>
 
       <div className="grid grid-cols-3 gap-4">
