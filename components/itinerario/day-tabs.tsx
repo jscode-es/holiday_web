@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { TouchEvent } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,51 +34,125 @@ export function DayTabs({
   const day = days[index];
   const hideControls = readOnly ?? isReadOnly;
 
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration-safe flag for the portal target
+    setMounted(true);
+  }, []);
+
+  function handleTouchStart(e: TouchEvent) {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function handleTouchEnd(e: TouchEvent) {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) < 50 || Math.abs(dy) > 60) return;
+    setIndex((i) => (dx < 0 ? Math.min(i + 1, days.length - 1) : Math.max(i - 1, 0)));
+  }
+
+  function renderTabButton(d: DayWithActivities, i: number) {
+    const pendingCount = d.activities.filter((a) => a.status === "pendiente").length;
+    const active = i === index;
+    return (
+      <button
+        onClick={() => setIndex(i)}
+        className={cn(
+          "flex min-w-23 flex-col items-start gap-0.5 rounded-xl border px-3 py-2 text-left transition-colors",
+          active
+            ? "border-black bg-black text-white"
+            : "border-neutral-100 bg-white text-neutral-500 hover:border-neutral-200 hover:text-neutral-900"
+        )}
+      >
+        <span className="flex w-full items-center justify-between gap-2 text-xs font-semibold">
+          Día {d.dayNumber}
+          {pendingCount > 0 && (
+            <span
+              className={cn(
+                "rounded-full px-1.5 py-px text-[10px] font-bold",
+                active ? "bg-white/20 text-white" : "bg-rose-100 text-rose-700"
+              )}
+            >
+              {pendingCount}
+            </span>
+          )}
+        </span>
+        <span className={cn("text-[11px]", active ? "text-white/70" : "text-neutral-400")}>
+          {d.date.slice(5)}
+        </span>
+      </button>
+    );
+  }
+
+  function renderMobileTab(d: DayWithActivities, i: number) {
+    const pendingCount = d.activities.filter((a) => a.status === "pendiente").length;
+    const active = i === index;
+    return (
+      <button
+        key={d.id}
+        onClick={() => setIndex(i)}
+        className={cn(
+          "flex shrink-0 snap-start flex-col items-center gap-0.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+          active ? "bg-black text-white" : "text-neutral-500"
+        )}
+      >
+        <span className="flex items-center gap-1">
+          Día {d.dayNumber}
+          {pendingCount > 0 && (
+            <span
+              className={cn(
+                "rounded-full px-1.5 py-px text-[10px] font-bold",
+                active ? "bg-white/20 text-white" : "bg-rose-100 text-rose-700"
+              )}
+            >
+              {pendingCount}
+            </span>
+          )}
+        </span>
+        <span className={cn("text-[10px]", active ? "text-white/70" : "text-neutral-400")}>
+          {d.date.slice(5)}
+        </span>
+      </button>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <Carousel opts={{ align: "start", dragFree: true }} className="mx-10">
-        <CarouselContent className="-ml-2">
-          {days.map((d, i) => {
-            const pendingCount = d.activities.filter((a) => a.status === "pendiente").length;
-            const active = i === index;
-            return (
+    <div className="space-y-6 pb-24 sm:pb-0">
+      <div className="hidden sm:block">
+        <Carousel opts={{ align: "start", dragFree: true }} className="mx-10">
+          <CarouselContent className="-ml-2">
+            {days.map((d, i) => (
               <CarouselItem key={d.id} className="basis-auto pl-2">
-                <button
-                  onClick={() => setIndex(i)}
-                  className={cn(
-                    "flex min-w-23 flex-col items-start gap-0.5 rounded-xl border px-3 py-2 text-left transition-colors",
-                    active
-                      ? "border-black bg-black text-white"
-                      : "border-neutral-100 bg-white text-neutral-500 hover:border-neutral-200 hover:text-neutral-900"
-                  )}
-                >
-                  <span className="flex w-full items-center justify-between gap-2 text-xs font-semibold">
-                    Día {d.dayNumber}
-                    {pendingCount > 0 && (
-                      <span
-                        className={cn(
-                          "rounded-full px-1.5 py-px text-[10px] font-bold",
-                          active ? "bg-white/20 text-white" : "bg-rose-100 text-rose-700"
-                        )}
-                      >
-                        {pendingCount}
-                      </span>
-                    )}
-                  </span>
-                  <span className={cn("text-[11px]", active ? "text-white/70" : "text-neutral-400")}>
-                    {d.date.slice(5)}
-                  </span>
-                </button>
+                {renderTabButton(d, i)}
               </CarouselItem>
-            );
-          })}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      </div>
+
+      {mounted &&
+        createPortal(
+          <div
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-100 bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)] sm:hidden"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
+            <div className="flex snap-x gap-1 overflow-x-auto px-2 py-1.5 scrollbar-none">
+              {days.map((d, i) => renderMobileTab(d, i))}
+            </div>
+          </div>,
+          document.body
+        )}
 
       {day && (
-        <div className="space-y-5">
+        <div className="space-y-5" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
