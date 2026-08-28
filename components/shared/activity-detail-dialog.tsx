@@ -56,7 +56,7 @@ export function ActivityDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <div className="relative -mx-4 -mt-4 aspect-video overflow-hidden rounded-t-xl bg-neutral-100">
           {embedUrl ? (
             <iframe

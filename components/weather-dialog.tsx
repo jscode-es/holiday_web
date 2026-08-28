@@ -55,7 +55,7 @@ export function WeatherCard({ weather }: { weather: WeatherInfo[] }) {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Previsión del tiempo</DialogTitle>
           </DialogHeader>
