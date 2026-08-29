@@ -42,6 +42,11 @@ export function DayTabs({
     setMounted(true);
   }, []);
 
+  function goToIndex(i: number) {
+    setIndex(i);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function handleTouchStart(e: TouchEvent) {
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
@@ -96,7 +101,7 @@ export function DayTabs({
     return (
       <button
         key={d.id}
-        onClick={() => setIndex(i)}
+        onClick={() => goToIndex(i)}
         className={cn(
           "flex shrink-0 snap-start flex-col items-center gap-0.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
           active ? "bg-black text-white" : "text-neutral-500"
